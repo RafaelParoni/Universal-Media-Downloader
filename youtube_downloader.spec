@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['d:\\MyPrograms\\YT_V_DOWNLOAD\\youtube_downloader.py'],
+    ['d:\\MyPrograms\\UniversalMediaDownloader\\youtube_downloader.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='youtube_downloader',
+    name='universal downloader',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -35,4 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='icon.ico',
 )
