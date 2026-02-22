@@ -61,6 +61,7 @@ LANGUAGES = {
         "extracting": "Extraindo informações do Spotify...",
         "found": "Encontrado: {}. Buscando áudio...",
         "error_link": "Erro: Verifique o link ou a conexão.",
+        "open_folder": "Abrir Pasta",
     },
     "English": {
         "title": "Universal Media Downloader",
@@ -87,6 +88,7 @@ LANGUAGES = {
         "extracting": "Extracting Spotify info...",
         "found": "Found: {}. Fetching audio...",
         "error_link": "Error: Check your link or connection.",
+        "open_folder": "Open Folder",
     },
     "Español": {
         "title": "Universal Media Downloader",
@@ -113,6 +115,7 @@ LANGUAGES = {
         "extracting": "Extrayendo info de Spotify...",
         "found": "Encontrado: {}. Buscando audio...",
         "error_link": "Error: Verifica tu enlace o conexión.",
+        "open_folder": "Abrir Carpeta",
     },
     "Русский": {
         "title": "Universal Media Downloader",
@@ -139,6 +142,7 @@ LANGUAGES = {
         "extracting": "Извлечение Spotify...",
         "found": "Найдено: {}. Поиск аудио...",
         "error_link": "Ошибка: Проверьте ссылку или интернет.",
+        "open_folder": "Открыть Папку",
     },
     "日本語": {
         "title": "Universal Media Downloader",
@@ -165,6 +169,7 @@ LANGUAGES = {
         "extracting": "Spotifyの情報を抽出中...",
         "found": "発見: {}。音声を検索中...",
         "error_link": "エラー: リンクか接続を確認してください。",
+        "open_folder": "フォルダを開く",
     },
     "中文": {
         "title": "Universal Media Downloader",
@@ -191,6 +196,7 @@ LANGUAGES = {
         "extracting": "正在提取Spotify信息...",
         "found": "找到: {}。正在获取音频...",
         "error_link": "错误：请检查您的链接或网络连接。",
+        "open_folder": "打开文件夹",
     }
 }
 
@@ -355,7 +361,25 @@ class DownloaderFrame(ctk.CTkFrame):
         self.download_btn.grid(row=3, column=0, pady=(10, 20))
 
         self.status_label = ctk.CTkLabel(self.card, text="", font=ctk.CTkFont(size=13))
-        self.status_label.grid(row=4, column=0, pady=(0, 20))
+        self.status_label.grid(row=4, column=0, pady=(0, 10))
+
+        self.open_folder_btn = ctk.CTkButton(
+            self.card,
+            text="",
+            command=self.open_download_folder,
+            font=ctk.CTkFont(size=14, weight="bold"),
+            height=40, width=200,
+            corner_radius=20,
+            fg_color="#27ae60",
+            hover_color="#2ecc71",
+            text_color="#FFFFFF"
+        )
+        self.open_folder_btn.grid(row=5, column=0, pady=(0, 10))
+        self.open_folder_btn.grid_remove()
+
+        self.filename_label = ctk.CTkLabel(self.card, text="", font=ctk.CTkFont(size=14, weight="bold"), text_color="#AAAAAA", wraplength=400)
+        self.filename_label.grid(row=6, column=0, pady=(0, 20))
+        self.filename_label.grid_remove()
 
         self.translate_ui(self.app_ref.config.get("language", "Português"))
 
@@ -365,6 +389,9 @@ class DownloaderFrame(ctk.CTkFrame):
         self.title_label.configure(text=t[self.title_key])
         self.url_entry.configure(placeholder_text=t[self.placeholder_key])
         self.download_btn.configure(text=t["btn_download"])
+        
+        if hasattr(self, 'open_folder_btn'):
+            self.open_folder_btn.configure(text=t.get("open_folder", "Abrir Pasta"))
         
         fmt_vals = [t["video_audio"], t["audio_only"], t["video_only"]]
         current_fmt_idx = 0
@@ -397,7 +424,23 @@ class DownloaderFrame(ctk.CTkFrame):
 
         self.download_btn.configure(state="disabled")
         self.status_label.configure(text=t["downloading"], text_color="yellow")
+        self.open_folder_btn.grid_remove()
+        self.filename_label.grid_remove()
+
         threading.Thread(target=self.download_media, args=(url, t), daemon=True).start()
+
+    def open_download_folder(self):
+        folder = self.app_ref.config.get("download_folder", "")
+        if os.path.exists(folder):
+            if os.name == 'nt':
+                os.startfile(folder)
+            else:
+                import sys
+                import subprocess
+                if sys.platform == 'darwin':
+                    subprocess.Popen(['open', folder])
+                else:
+                    subprocess.Popen(['xdg-open', folder])
 
     def download_media(self, url, t):
         try:
@@ -490,9 +533,20 @@ class DownloaderFrame(ctk.CTkFrame):
             self.status_label.configure(text=t["downloading"], text_color="yellow")
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([url])
+                info = ydl.extract_info(url, download=True)
+                
+            title = "Arquivo Baixado"
+            if info:
+                if 'entries' in info and len(info['entries']) > 0:
+                    title = info['entries'][0].get('title', 'Arquivo Baixado')
+                else:
+                    title = info.get('title', 'Arquivo Baixado')
 
             self.status_label.configure(text=t["done"], text_color="#00FF00")
+            self.filename_label.configure(text=title)
+            self.open_folder_btn.grid()
+            self.filename_label.grid()
+
             self.url_entry.delete(0, 'end')
             
         except Exception as e:
