@@ -24,7 +24,7 @@ O **Universal Media Downloader** é um aplicativo de desktop moderno, leve e fá
 
 ## 🚀 Instalação (Windows)
 
-Você pode baixar o instalador compilado (`Universal_Media_Downloader_Setup.exe`) na seção [Releases](#).
+Você pode baixar o instalador compilado (`Universal_Media_Downloader_Setup.exe`) na seção [Releases](https://github.com/RafaelParoni/Universal-Media-Downloader/releases).
 
 1. Baixe o `setup.exe` mais recente.
 2. Execute o instalador e siga as instruções na tela.

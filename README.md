@@ -24,7 +24,7 @@
 
 ## 🚀 Installation (Windows)
 
-You can download the compiled installer (`Universal_Media_Downloader_Setup.exe`) from the [Releases](#) section.
+You can download the compiled installer (`Universal_Media_Downloader_Setup.exe`) from the [Releases](https://github.com/RafaelParoni/Universal-Media-Downloader/releases) section.
 
 1. Download the latest `setup.exe`.
 2. Run the installer and follow the instructions.
