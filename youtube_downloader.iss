@@ -1,6 +1,6 @@
 [Setup]
 AppName=Universal Media Downloader
-AppVersion=1.0
+AppVersion=1.2.1
 DefaultDirName={autopf}\Universal Media Downloader
 DefaultGroupName=Universal Media Downloader
 OutputDir=d:\MyPrograms\UniversalMediaDownloader
