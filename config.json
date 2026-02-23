@@ -1,48 +1,5 @@
 {
     "download_folder": "C:/Users/rafae/Downloads",
     "language": "Portugu\u00eas",
-    "history": [
-        {
-            "name": "\u30a2\u30a4\u30ca\u30fb\u30b8\u30fb\u30a8\u30f3\u30c9 - Aria [Official Music Video]",
-            "service": "Spotify",
-            "duration": "3:40",
-            "link": "ytsearch1:Aria  AiNA THE END",
-            "path": "C:/Users/rafae/Downloads\\\u30a2\u30a4\u30ca\u30fb\u30b8\u30fb\u30a8\u30f3\u30c9 - Aria [Official Music Video] - audio.mp4"
-        },
-        {
-            "name": "Maroon 5 - She Will Be Loved (Radio Edit) (HD)",
-            "service": "YouTube",
-            "duration": "4:02",
-            "link": "ytsearch1:She Will Be Loved - Radio Mix  Maroon 5",
-            "path": "C:/Users/rafae/Downloads\\Maroon 5 - She Will Be Loved (Radio Edit) (HD) - audio.mp4"
-        },
-        {
-            "name": "Maroon 5 - Maps",
-            "service": "YouTube",
-            "duration": "3:28",
-            "link": "ytsearch1:Maps  Maroon 5",
-            "path": "C:/Users/rafae/Downloads\\Maroon 5 - Maps - video e audio - Melhor Qualidade.mp4"
-        },
-        {
-            "name": "\"Moves Like Jagger (Studio Recording from \"The Voice\" Performance) [feat. Christina Aguilera]\" Fan",
-            "service": "YouTube",
-            "duration": "3:21",
-            "link": "ytsearch1:Moves Like Jagger - Studio Recording From &quot;The Voice&quot; Performance  Maroon 5, Christina Aguilera",
-            "path": "C:/Users/rafae/Downloads\\\"Moves Like Jagger (Studio Recording from \"The Voice\" Performance) [feat. Christina Aguilera]\" Fan - audio.mp4"
-        },
-        {
-            "name": "TikTok video #7582830688970427668",
-            "service": "TikTok",
-            "duration": "0:08",
-            "link": "https://www.tiktok.com/@yinakomfi/video/7582830688970427668?is_from_webapp=1&sender_device=pc",
-            "path": "C:\\Users\\rafae\\Downloads\\TikTok video #7582830688970427668 - video e audio - Melhor Qualidade.mp4"
-        },
-        {
-            "name": "a Berta \u00e9 muito engra\u00e7ada kkkkk",
-            "service": "YouTube",
-            "duration": "0:26",
-            "link": "https://www.youtube.com/shorts/jNQOmFe6xes",
-            "path": "C:\\Users\\rafae\\Downloads\\a Berta \u00e9 muito engra\u00e7ada kkkkk - video e audio - Melhor Qualidade.mp4"
-        }
-    ]
+    "history": []
 }

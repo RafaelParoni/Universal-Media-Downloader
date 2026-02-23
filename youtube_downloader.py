@@ -69,7 +69,8 @@ LANGUAGES = {
         "duration": "Duração",
         "link": "Link",
         "location": "Local",
-        "no_history": "Nenhum histórico disponível."
+        "no_history": "Nenhum histórico disponível.",
+        "delete": "Excluir"
     },
     "English": {
         "title": "Universal Media Downloader",
@@ -104,7 +105,8 @@ LANGUAGES = {
         "duration": "Duration",
         "link": "Link",
         "location": "Location",
-        "no_history": "No history available."
+        "no_history": "No history available.",
+        "delete": "Delete"
     },
     "Español": {
         "title": "Universal Media Downloader",
@@ -139,7 +141,8 @@ LANGUAGES = {
         "duration": "Duración",
         "link": "Enlace",
         "location": "Ubicación",
-        "no_history": "No hay historial disponible."
+        "no_history": "No hay historial disponible.",
+        "delete": "Eliminar"
     },
     "Русский": {
         "title": "Universal Media Downloader",
@@ -174,7 +177,8 @@ LANGUAGES = {
         "duration": "Продолжительность",
         "link": "Ссылка",
         "location": "Расположение",
-        "no_history": "История недоступна."
+        "no_history": "История недоступна.",
+        "delete": "Удалить"
     },
     "日本語": {
         "title": "Universal Media Downloader",
@@ -209,7 +213,8 @@ LANGUAGES = {
         "duration": "時間",
         "link": "リンク",
         "location": "場所",
-        "no_history": "履歴はありません。"
+        "no_history": "履歴はありません。",
+        "delete": "削除"
     },
     "中文": {
         "title": "Universal Media Downloader",
@@ -244,7 +249,8 @@ LANGUAGES = {
         "duration": "持续时间",
         "link": "链接",
         "location": "位置",
-        "no_history": "没有可用的历史记录。"
+        "no_history": "没有可用的历史记录。",
+        "delete": "删除"
     }
 }
 
@@ -289,7 +295,13 @@ class HistoryFrame(ctk.CTkFrame):
                 if isinstance(widget, ctk.CTkLabel) and widget.cget("text").startswith(t.get("media_name", "Nome da Mídia")):
                    pass # labels are static for now
 
-    def add_item(self, media_name, service, duration, link, path):
+    def add_item(self, entry):
+        media_name = entry.get('name', '')
+        service = entry.get('service', '')
+        duration = entry.get('duration', '')
+        link = entry.get('link', '')
+        path = entry.get('path', '')
+        
         t = LANGUAGES.get(self.app_ref.config.get("language", "Português"), LANGUAGES["Português"])
         
         self.no_history_label.grid_remove()
@@ -318,6 +330,15 @@ class HistoryFrame(ctk.CTkFrame):
         )
         btn_open.grid(row=0, column=1, rowspan=2, padx=15, pady=15)
         
+        # Botão para deletar
+        btn_delete = ctk.CTkButton(
+            item_frame, text=t.get("delete", "Excluir"),
+            command=lambda e=entry: self.delete_history_item(e),
+            font=ctk.CTkFont(size=12, weight="bold"),
+            fg_color="#D9534F", hover_color="#C9302C", corner_radius=10, width=80, height=30
+        )
+        btn_delete.grid(row=0, column=2, rowspan=2, padx=(0, 15), pady=15)
+        
         self.history_items.append(item_frame)
 
     def load_history(self, history_list):
@@ -331,7 +352,14 @@ class HistoryFrame(ctk.CTkFrame):
             self.no_history_label.grid_remove()
             # Carregar em ordem reversa (mais recentes primeiro)
             for entry in reversed(history_list):
-                self.add_item(entry.get('name', ''), entry.get('service', ''), entry.get('duration', ''), entry.get('link', ''), entry.get('path', ''))
+                self.add_item(entry)
+
+    def delete_history_item(self, entry):
+        history = self.app_ref.config.get("history", [])
+        if entry in history:
+            history.remove(entry)
+            self.app_ref.save_config()
+            self.load_history(history)
 
     def open_folder(self, file_path):
         folder = os.path.dirname(file_path) if os.path.isfile(file_path) else file_path
@@ -846,7 +874,7 @@ class UniversalDownloaderApp(ctk.CTk):
         self.btn_history.configure(text="🕒 " + t.get("history", "Histórico"))
         self.btn_settings.configure(text="⚙ " + t["settings"])
         
-        self.version_label.configure(text=f"{t['version']}: 1.2.1")
+        self.version_label.configure(text=f"{t['version']}: 1.2.2")
         
         for frame in [self.youtube_frame, self.spotify_frame, self.tiktok_frame, self.instagram_frame, self.history_frame]:
             frame.translate_ui(lang)
