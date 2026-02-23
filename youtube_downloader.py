@@ -62,6 +62,14 @@ LANGUAGES = {
         "found": "Encontrado: {}. Buscando áudio...",
         "error_link": "Erro: Verifique o link ou a conexão.",
         "open_folder": "Abrir Pasta",
+        "version": "Versão",
+        "history": "Histórico",
+        "media_name": "Nome da Mídia",
+        "service": "Serviço",
+        "duration": "Duração",
+        "link": "Link",
+        "location": "Local",
+        "no_history": "Nenhum histórico disponível."
     },
     "English": {
         "title": "Universal Media Downloader",
@@ -89,6 +97,14 @@ LANGUAGES = {
         "found": "Found: {}. Fetching audio...",
         "error_link": "Error: Check your link or connection.",
         "open_folder": "Open Folder",
+        "version": "Version",
+        "history": "History",
+        "media_name": "Media Name",
+        "service": "Service",
+        "duration": "Duration",
+        "link": "Link",
+        "location": "Location",
+        "no_history": "No history available."
     },
     "Español": {
         "title": "Universal Media Downloader",
@@ -116,6 +132,14 @@ LANGUAGES = {
         "found": "Encontrado: {}. Buscando audio...",
         "error_link": "Error: Verifica tu enlace o conexión.",
         "open_folder": "Abrir Carpeta",
+        "version": "Versión",
+        "history": "Historial",
+        "media_name": "Nombre del Medio",
+        "service": "Servicio",
+        "duration": "Duración",
+        "link": "Enlace",
+        "location": "Ubicación",
+        "no_history": "No hay historial disponible."
     },
     "Русский": {
         "title": "Universal Media Downloader",
@@ -143,6 +167,14 @@ LANGUAGES = {
         "found": "Найдено: {}. Поиск аудио...",
         "error_link": "Ошибка: Проверьте ссылку или интернет.",
         "open_folder": "Открыть Папку",
+        "version": "Версия",
+        "history": "История",
+        "media_name": "Название Медиа",
+        "service": "Сервис",
+        "duration": "Продолжительность",
+        "link": "Ссылка",
+        "location": "Расположение",
+        "no_history": "История недоступна."
     },
     "日本語": {
         "title": "Universal Media Downloader",
@@ -170,6 +202,14 @@ LANGUAGES = {
         "found": "発見: {}。音声を検索中...",
         "error_link": "エラー: リンクか接続を確認してください。",
         "open_folder": "フォルダを開く",
+        "version": "バージョン",
+        "history": "履歴",
+        "media_name": "メディア名",
+        "service": "サービス",
+        "duration": "時間",
+        "link": "リンク",
+        "location": "場所",
+        "no_history": "履歴はありません。"
     },
     "中文": {
         "title": "Universal Media Downloader",
@@ -197,8 +237,115 @@ LANGUAGES = {
         "found": "找到: {}。正在获取音频...",
         "error_link": "错误：请检查您的链接或网络连接。",
         "open_folder": "打开文件夹",
+        "version": "版本",
+        "history": "历史",
+        "media_name": "媒体名称",
+        "service": "服务",
+        "duration": "持续时间",
+        "link": "链接",
+        "location": "位置",
+        "no_history": "没有可用的历史记录。"
     }
 }
+
+class HistoryFrame(ctk.CTkFrame):
+    def __init__(self, master, app_ref):
+        super().__init__(master, corner_radius=0, fg_color=BG_COLOR)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        self.app_ref = app_ref
+
+        # Card Central
+        self.card = ctk.CTkFrame(self, fg_color=CARD_COLOR, corner_radius=25)
+        self.card.grid(row=0, column=0, padx=40, pady=40, sticky="nsew")
+        self.card.grid_columnconfigure(0, weight=1)
+        self.card.grid_rowconfigure(1, weight=1)
+
+        fonte_titulo = ctk.CTkFont(size=24, weight="bold")
+        self.fonte_texto = ctk.CTkFont(size=14)
+
+        self.title_label = ctk.CTkLabel(self.card, text="Histórico", font=fonte_titulo, text_color=TEXT_COLOR)
+        self.title_label.grid(row=0, column=0, pady=(40, 20))
+
+        # Scrollable Frame para os itens
+        self.scroll_frame = ctk.CTkScrollableFrame(self.card, fg_color="transparent")
+        self.scroll_frame.grid(row=1, column=0, padx=20, pady=(0, 20), sticky="nsew")
+        self.scroll_frame.grid_columnconfigure(0, weight=1)
+        
+        self.no_history_label = ctk.CTkLabel(self.scroll_frame, text="", font=self.fonte_texto, text_color="#AAAAAA")
+        self.no_history_label.grid(row=0, column=0, pady=50)
+
+        self.history_items = []
+        self.translate_ui(self.app_ref.config.get("language", "Português"))
+        self.load_history(self.app_ref.config.get("history", []))
+
+    def translate_ui(self, lang):
+        t = LANGUAGES.get(lang, LANGUAGES["Português"])
+        self.title_label.configure(text=t.get("history", "Histórico"))
+        self.no_history_label.configure(text=t.get("no_history", "Nenhum histórico disponível."))
+        # Atualizar labels dos itens existentes, se necessário
+        for item_frame in self.history_items:
+            for widget in item_frame.winfo_children():
+                if isinstance(widget, ctk.CTkLabel) and widget.cget("text").startswith(t.get("media_name", "Nome da Mídia")):
+                   pass # labels are static for now
+
+    def add_item(self, media_name, service, duration, link, path):
+        t = LANGUAGES.get(self.app_ref.config.get("language", "Português"), LANGUAGES["Português"])
+        
+        self.no_history_label.grid_remove()
+        
+        item_frame = ctk.CTkFrame(self.scroll_frame, fg_color=ENTRY_BG, corner_radius=15)
+        item_frame.grid(row=len(self.history_items) + 1, column=0, pady=5, padx=5, sticky="ew")
+        item_frame.grid_columnconfigure(0, weight=1)
+        
+        info_text = f"[{service.upper()}] {media_name}\n"
+        if duration:
+            info_text += f"{t.get('duration', 'Duração')}: {duration} | "
+        info_text += f"{t.get('location', 'Local')}: {os.path.basename(path)}"
+        
+        lbl_info = ctk.CTkLabel(item_frame, text=info_text, font=ctk.CTkFont(size=14, weight="bold"), text_color=TEXT_COLOR, justify="left", anchor="w")
+        lbl_info.grid(row=0, column=0, padx=15, pady=(15, 5), sticky="w")
+        
+        lbl_link = ctk.CTkLabel(item_frame, text=link, font=ctk.CTkFont(size=12), text_color="#AAAAAA", justify="left", anchor="w")
+        lbl_link.grid(row=1, column=0, padx=15, pady=(0, 15), sticky="w")
+        
+        # Botão para abrir o local
+        btn_open = ctk.CTkButton(
+            item_frame, text=t.get("open_folder", "Abrir Pasta"),
+            command=lambda p=path: self.open_folder(p),
+            font=ctk.CTkFont(size=12, weight="bold"),
+            fg_color=ACCENT_COLOR, hover_color=ACCENT_HOVER, corner_radius=10, width=100, height=30
+        )
+        btn_open.grid(row=0, column=1, rowspan=2, padx=15, pady=15)
+        
+        self.history_items.append(item_frame)
+
+    def load_history(self, history_list):
+        for item in self.history_items:
+            item.destroy()
+        self.history_items.clear()
+        
+        if not history_list:
+            self.no_history_label.grid()
+        else:
+            self.no_history_label.grid_remove()
+            # Carregar em ordem reversa (mais recentes primeiro)
+            for entry in reversed(history_list):
+                self.add_item(entry.get('name', ''), entry.get('service', ''), entry.get('duration', ''), entry.get('link', ''), entry.get('path', ''))
+
+    def open_folder(self, file_path):
+        folder = os.path.dirname(file_path) if os.path.isfile(file_path) else file_path
+        if os.path.exists(folder):
+            if os.name == 'nt':
+                os.startfile(folder)
+            else:
+                import sys
+                import subprocess
+                if sys.platform == 'darwin':
+                    subprocess.Popen(['open', folder])
+                else:
+                    subprocess.Popen(['xdg-open', folder])
+
 
 class SettingsFrame(ctk.CTkFrame):
     def __init__(self, master, app_ref):
@@ -444,6 +591,7 @@ class DownloaderFrame(ctk.CTkFrame):
 
     def download_media(self, url, t):
         try:
+            original_url = url
             download_type = self.type_var.get()
             quality = self.quality_var.get()
 
@@ -536,16 +684,61 @@ class DownloaderFrame(ctk.CTkFrame):
                 info = ydl.extract_info(url, download=True)
                 
             title = "Arquivo Baixado"
+            duration_str = ""
             if info:
                 if 'entries' in info and len(info['entries']) > 0:
-                    title = info['entries'][0].get('title', 'Arquivo Baixado')
+                    entry = info['entries'][0]
+                    title = entry.get('title', 'Arquivo Baixado')
+                    duration_sec = entry.get('duration', 0)
                 else:
                     title = info.get('title', 'Arquivo Baixado')
+                    duration_sec = info.get('duration', 0)
+                    
+                if duration_sec:
+                    m, s = divmod(int(duration_sec), 60)
+                    h, m = divmod(m, 60)
+                    if h > 0:
+                        duration_str = f"{h}:{m:02d}:{s:02d}"
+                    else:
+                        duration_str = f"{m}:{s:02d}"
 
+            # Identificar o serviço pela URL original, antes de ser modificada pelo tratamento do Spotify
+            service = "Desconhecido"
+            url_lower_orig = original_url.lower()
+            if "spotify" in url_lower_orig:
+                service = "Spotify"
+            elif "tiktok" in url_lower_orig:
+                service = "TikTok"
+            elif "instagram" in url_lower_orig:
+                service = "Instagram"
+            elif "youtube" in url_lower_orig or "youtu.be" in url_lower_orig or "ytsearch1" in url_lower_orig:
+                service = "YouTube"
+
+            # Obter o caminho real do arquivo baixado
+            final_path = ""
+            if info and 'requested_downloads' in info and len(info['requested_downloads']) > 0:
+                final_path = info['requested_downloads'][0].get('filepath', '')
+            if not final_path and info and '_filename' in info:
+                final_path = info['_filename']
+            if not final_path:
+                outtmpl = ydl_opts.get('outtmpl', '')
+                if isinstance(outtmpl, dict):
+                    outtmpl = outtmpl.get('default', '')
+                if isinstance(outtmpl, str):
+                    try:
+                        final_path = outtmpl % {'title': title, 'ext': 'mp4'}
+                    except:
+                        final_path = os.path.join(download_folder, f"{title}.mp4")
+                else:
+                    final_path = os.path.join(download_folder, f"{title}.mp4")
+            
             self.status_label.configure(text=t["done"], text_color="#00FF00")
             self.filename_label.configure(text=title)
             self.open_folder_btn.grid()
             self.filename_label.grid()
+            
+            # Adicionar ao histórico
+            self.app_ref.add_to_history(title, service, duration_str, url, final_path)
 
             self.url_entry.delete(0, 'end')
             
@@ -590,18 +783,24 @@ class UniversalDownloaderApp(ctk.CTk):
         self.divider = ctk.CTkFrame(self.sidebar_frame, height=2, fg_color=ENTRY_BG)
         self.divider.grid(row=5, column=0, padx=20, pady=(20, 10), sticky="ew")
         
-        self.btn_settings = self.create_sidebar_button("⚙ Configurações", 6, self.show_settings)
+        self.btn_history = self.create_sidebar_button("🕒 Histórico", 6, self.show_history)
+        self.btn_settings = self.create_sidebar_button("⚙ Configurações", 7, self.show_settings)
 
-        self.buttons = [self.btn_youtube, self.btn_spotify, self.btn_tiktok, self.btn_instagram, self.btn_settings]
+        self.buttons = [self.btn_youtube, self.btn_spotify, self.btn_tiktok, self.btn_instagram, self.btn_history, self.btn_settings]
+
+        # Version label (visible but subtle)
+        self.version_label = ctk.CTkLabel(self.sidebar_frame, text="", font=ctk.CTkFont(size=11), text_color="#5A5C66")
+        self.version_label.grid(row=8, column=0, pady=(0, 10), sticky="s")
 
         # --- Frames (Páginas) ---
         self.youtube_frame = DownloaderFrame(self, self, "youtube", "placeholder_yt", audio_only=False)
         self.spotify_frame = DownloaderFrame(self, self, "spotify", "placeholder_sp", audio_only=True)
         self.tiktok_frame = DownloaderFrame(self, self, "tiktok", "placeholder_tk", audio_only=False)
         self.instagram_frame = DownloaderFrame(self, self, "instagram", "placeholder_ig", audio_only=False)
+        self.history_frame = HistoryFrame(self, self)
         self.settings_frame = SettingsFrame(self, self)
 
-        self.frames = [self.youtube_frame, self.spotify_frame, self.tiktok_frame, self.instagram_frame, self.settings_frame]
+        self.frames = [self.youtube_frame, self.spotify_frame, self.tiktok_frame, self.instagram_frame, self.history_frame, self.settings_frame]
 
         self.apply_translations(self.config.get("language", "Português"))
 
@@ -615,7 +814,8 @@ class UniversalDownloaderApp(ctk.CTk):
             
         self.config = {
             "download_folder": default_folder,
-            "language": "Português"
+            "language": "Português",
+            "history": []
         }
         
         if os.path.exists(CONFIG_FILE):
@@ -643,9 +843,12 @@ class UniversalDownloaderApp(ctk.CTk):
         self.btn_spotify.configure(text="🎵 " + t["spotify"].split(" ")[-1])
         self.btn_tiktok.configure(text="📱 " + t["tiktok"].split(" ")[-1])
         self.btn_instagram.configure(text="📸 " + t["instagram"].split(" ")[-1])
+        self.btn_history.configure(text="🕒 " + t.get("history", "Histórico"))
         self.btn_settings.configure(text="⚙ " + t["settings"])
         
-        for frame in [self.youtube_frame, self.spotify_frame, self.tiktok_frame, self.instagram_frame]:
+        self.version_label.configure(text=f"{t['version']}: 1.1.0")
+        
+        for frame in [self.youtube_frame, self.spotify_frame, self.tiktok_frame, self.instagram_frame, self.history_frame]:
             frame.translate_ui(lang)
 
     def create_sidebar_button(self, text, row, command):
@@ -695,10 +898,38 @@ class UniversalDownloaderApp(ctk.CTk):
         self.select_sidebar_button(self.btn_instagram)
         self.instagram_frame.grid(row=0, column=1, sticky="nsew")
 
+    def show_history(self):
+        self.hide_all_frames()
+        self.select_sidebar_button(self.btn_history)
+        self.history_frame.grid(row=0, column=1, sticky="nsew")
+
     def show_settings(self):
         self.hide_all_frames()
         self.select_sidebar_button(self.btn_settings)
         self.settings_frame.grid(row=0, column=1, sticky="nsew")
+
+    def add_to_history(self, media_name, service, duration, link, path):
+        entry = {
+            "name": media_name,
+            "service": service,
+            "duration": duration,
+            "link": link,
+            "path": path
+        }
+        if "history" not in self.config:
+            self.config["history"] = []
+        
+        # Add to the beginning of the list to keep it recent first
+        self.config["history"].insert(0, entry)
+        
+        # Keep only the last 50 items to prevent the file from growing too large
+        if len(self.config["history"]) > 50:
+            self.config["history"] = self.config["history"][:50]
+            
+        self.save_config()
+        
+        # Update UI thread-safely
+        self.after(0, lambda: self.history_frame.load_history(self.config["history"]))
 
 
 if __name__ == "__main__":
