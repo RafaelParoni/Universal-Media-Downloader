@@ -846,7 +846,7 @@ class UniversalDownloaderApp(ctk.CTk):
         self.btn_history.configure(text="🕒 " + t.get("history", "Histórico"))
         self.btn_settings.configure(text="⚙ " + t["settings"])
         
-        self.version_label.configure(text=f"{t['version']}: 1.1.0")
+        self.version_label.configure(text=f"{t['version']}: 1.2.1")
         
         for frame in [self.youtube_frame, self.spotify_frame, self.tiktok_frame, self.instagram_frame, self.history_frame]:
             frame.translate_ui(lang)
