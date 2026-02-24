@@ -1,5 +1,20 @@
 {
     "download_folder": "C:/Users/rafae/Downloads",
     "language": "Portugu\u00eas",
-    "history": []
+    "history": [
+        {
+            "name": "RICHARD RASMUSSEN FAZ DESABAFO SOBRE COCIELO E MANDA \u00c1UDIO AO VIVO PARA ELE",
+            "service": "YouTube",
+            "duration": "4:21",
+            "link": "https://www.youtube.com/watch?v=eBhc31X-_gM",
+            "path": "C:\\Users\\rafae\\Downloads\\RICHARD RASMUSSEN FAZ DESABAFO SOBRE COCIELO E MANDA \u00c1UDIO AO VIVO PARA ELE - video e audio - Melhor Qualidade.mp4"
+        },
+        {
+            "name": "David Guetta - Titanium ft. Sia (Official Video)",
+            "service": "Spotify",
+            "duration": "4:05",
+            "link": "ytsearch1:Titanium (feat. Sia)  David Guetta, Sia",
+            "path": "C:/Users/rafae/Downloads\\David Guetta - Titanium ft. Sia (Official Video) - audio.mp4"
+        }
+    ]
 }

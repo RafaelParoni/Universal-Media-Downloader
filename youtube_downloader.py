@@ -521,7 +521,6 @@ class DownloaderFrame(ctk.CTkFrame):
         self.quality_menu.grid(row=0, column=1, padx=15)
         # ---------------------------------------------
 
-        # Botão de Download Moderno e Largo
         self.download_btn = ctk.CTkButton(
             self.card, 
             text="", 
@@ -535,8 +534,20 @@ class DownloaderFrame(ctk.CTkFrame):
         )
         self.download_btn.grid(row=3, column=0, pady=(10, 20))
 
+        self.progress_frame = ctk.CTkFrame(self.card, fg_color="transparent")
+        self.progress_frame.grid(row=4, column=0, pady=(0, 10), sticky="ew", padx=80)
+        self.progress_frame.grid_columnconfigure(0, weight=1)
+        self.progress_frame.grid_remove()
+
+        self.progress_bar = ctk.CTkProgressBar(self.progress_frame, progress_color=ACCENT_COLOR, height=10)
+        self.progress_bar.grid(row=0, column=0, sticky="ew", padx=(0, 15))
+        self.progress_bar.set(0)
+
+        self.progress_label = ctk.CTkLabel(self.progress_frame, text="0%", font=ctk.CTkFont(size=13, weight="bold"))
+        self.progress_label.grid(row=0, column=1)
+
         self.status_label = ctk.CTkLabel(self.card, text="", font=ctk.CTkFont(size=13))
-        self.status_label.grid(row=4, column=0, pady=(0, 10))
+        self.status_label.grid(row=5, column=0, pady=(0, 10))
 
         self.open_folder_btn = ctk.CTkButton(
             self.card,
@@ -549,11 +560,11 @@ class DownloaderFrame(ctk.CTkFrame):
             hover_color="#2ecc71",
             text_color="#FFFFFF"
         )
-        self.open_folder_btn.grid(row=5, column=0, pady=(0, 10))
+        self.open_folder_btn.grid(row=6, column=0, pady=(0, 10))
         self.open_folder_btn.grid_remove()
 
         self.filename_label = ctk.CTkLabel(self.card, text="", font=ctk.CTkFont(size=14, weight="bold"), text_color="#AAAAAA", wraplength=400)
-        self.filename_label.grid(row=6, column=0, pady=(0, 20))
+        self.filename_label.grid(row=7, column=0, pady=(0, 20))
         self.filename_label.grid_remove()
 
         self.translate_ui(self.app_ref.config.get("language", "Português"))
@@ -588,6 +599,10 @@ class DownloaderFrame(ctk.CTkFrame):
         self.quality_menu.configure(values=qual_vals)
         self.quality_var.set(qual_vals[current_qual_idx])
 
+    def update_progress(self, percent):
+        self.progress_bar.set(percent)
+        self.progress_label.configure(text=f"{int(percent * 100)}%")
+
     def start_download(self):
         url = self.url_entry.get().strip()
         lang = self.app_ref.config.get("language", "Português")
@@ -601,6 +616,10 @@ class DownloaderFrame(ctk.CTkFrame):
         self.status_label.configure(text=t["downloading"], text_color="yellow")
         self.open_folder_btn.grid_remove()
         self.filename_label.grid_remove()
+        
+        self.progress_bar.set(0)
+        self.progress_label.configure(text="0%")
+        self.progress_frame.grid()
 
         threading.Thread(target=self.download_media, args=(url, t), daemon=True).start()
 
@@ -661,13 +680,27 @@ class DownloaderFrame(ctk.CTkFrame):
 
             download_folder = self.app_ref.config.get("download_folder", "")
 
+            def progress_hook(d):
+                if d['status'] == 'downloading':
+                    try:
+                        total_bytes = d.get('total_bytes') or d.get('total_bytes_estimate')
+                        downloaded_bytes = d.get('downloaded_bytes', 0)
+                        if total_bytes and total_bytes > 0:
+                            percent = downloaded_bytes / total_bytes
+                            self.app_ref.after(0, self.update_progress, percent)
+                    except:
+                        pass
+                elif d['status'] == 'finished':
+                    self.app_ref.after(0, self.update_progress, 1.0)
+
             ydl_opts = {
                 'outtmpl': os.path.join(download_folder, f'%(title)s - dummy.%(ext)s'),
                 'noplaylist': True,
                 'quiet': True,
                 'no_warnings': True,
                 'ffmpeg_location': ffmpeg_path,
-                'postprocessors': []
+                'postprocessors': [],
+                'progress_hooks': [progress_hook]
             }
 
             if download_type == t["audio_only"] or self.audio_only:
@@ -777,6 +810,7 @@ class DownloaderFrame(ctk.CTkFrame):
             messagebox.showerror("Download Erro", f"Ocorreu um erro ao baixar o arquivo.\n\nDetalhes do erro:\n{error_msg}")
         finally:
             self.download_btn.configure(state="normal")
+            self.progress_frame.grid_remove()
 
 
 class UniversalDownloaderApp(ctk.CTk):
@@ -874,7 +908,7 @@ class UniversalDownloaderApp(ctk.CTk):
         self.btn_history.configure(text="🕒 " + t.get("history", "Histórico"))
         self.btn_settings.configure(text="⚙ " + t["settings"])
         
-        self.version_label.configure(text=f"{t['version']}: 1.2.3")
+        self.version_label.configure(text=f"{t['version']}: 1.3.0")
         
         for frame in [self.youtube_frame, self.spotify_frame, self.tiktok_frame, self.instagram_frame, self.history_frame]:
             frame.translate_ui(lang)
