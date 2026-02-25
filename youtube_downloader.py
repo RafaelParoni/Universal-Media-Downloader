@@ -1266,6 +1266,33 @@ class UniversalDownloaderApp(ctk.CTk):
             except:
                 pass
 
+        # Intercept lang_setup.ini se existir (vindo do instalador)
+        import sys
+        if getattr(sys, 'frozen', False):
+            lang_file = os.path.join(os.path.dirname(sys.executable), "lang_setup.ini")
+        else:
+            lang_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lang_setup.ini")
+            
+        if os.path.exists(lang_file):
+            try:
+                import configparser
+                parser = configparser.ConfigParser()
+                parser.read(lang_file, encoding="utf-8")
+                setup_lang = parser.get("Setup", "Language", fallback="").lower()
+                lang_map = {
+                    "brazilianportuguese": "Português",
+                    "english": "English",
+                    "spanish": "Español",
+                    "russian": "Русский",
+                    "japanese": "日本語",
+                }
+                if setup_lang in lang_map:
+                    self.config["language"] = lang_map[setup_lang]
+                    self.save_config()
+                os.remove(lang_file)
+            except:
+                pass
+
     def save_config(self):
         try:
             with open(CONFIG_FILE, "w", encoding="utf-8") as f:
