@@ -11,14 +11,25 @@ try:
     import customtkinter as ctk
     import yt_dlp
     import imageio_ffmpeg
+    from PIL import Image
 except ImportError:
     import sys
     import subprocess
     print("Instalando dependências...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "customtkinter", "yt-dlp", "imageio-ffmpeg"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "customtkinter", "yt-dlp", "imageio-ffmpeg", "pillow"])
     import customtkinter as ctk
     import yt_dlp
     import imageio_ffmpeg
+    from PIL import Image
+
+import json
+import base64
+import io
+
+try:
+    from service_icons import ICONS_B64
+except:
+    ICONS_B64 = {}
 
 # Paleta de Cores (Mockup)
 BG_COLOR = "#0A0B10"           # Fundo muito escuro (Janela principal)
@@ -42,11 +53,35 @@ LANGUAGES = {
         "spotify": "Baixador do Spotify",
         "tiktok": "Baixador do TikTok",
         "instagram": "Baixador do Instagram",
+        "twitter": "Baixador do Twitter",
+        "reddit": "Baixador do Reddit",
+        "pinterest": "Baixador do Pinterest",
+        "facebook": "Baixador do Facebook",
+        "kwai": "Baixador do Kwai",
+        "vimeo": "Baixador do Vimeo",
+        "twitch": "Baixador da Twitch",
+        "soundcloud": "Baixador do SoundCloud",
+        "bandcamp": "Baixador do Bandcamp",
+        "rumble": "Baixador do Rumble",
+        "bilibili": "Baixador do BiliBili",
+        "others": "Todos os Serviços",
+        "others_menu": "Todos os Serviços",
         "settings": "Configurações",
         "placeholder_yt": "Cole o link do vídeo do YouTube...",
         "placeholder_sp": "Cole o link da música do Spotify... (Apenas Áudio)",
         "placeholder_tk": "Cole o link do vídeo do TikTok...",
         "placeholder_ig": "Cole o link do Reels/Post do Instagram...",
+        "placeholder_tw": "Cole o link do X/Twitter aqui...",
+        "placeholder_re": "Cole o link do post do Reddit aqui...",
+        "placeholder_pi": "Cole o link do Pin do Pinterest aqui...",
+        "placeholder_fa": "Cole o link do vídeo do Facebook aqui...",
+        "placeholder_kw": "Cole o link do vídeo do Kwai aqui...",
+        "placeholder_vi": "Cole o link do vídeo do Vimeo aqui...",
+        "placeholder_tw": "Cole o link do clipe/VOD da Twitch aqui...",
+        "placeholder_so": "Cole o link da música do SoundCloud aqui... (Apenas Áudio)",
+        "placeholder_ba": "Cole o link da música do Bandcamp aqui... (Apenas Áudio)",
+        "placeholder_ru": "Cole o link do vídeo do Rumble aqui...",
+        "placeholder_bi": "Cole o link do vídeo do BiliBili aqui...",
         "btn_download": "Baixar",
         "video_audio": "Vídeo + Áudio",
         "audio_only": "Apenas Áudio",
@@ -54,6 +89,7 @@ LANGUAGES = {
         "best_quality": "Melhor Qualidade",
         "select_folder": "Escolher Pasta de Download",
         "language_lbl": "Idioma do Aplicativo:",
+        "resizable_window_lbl": "Permitir Redimensionar Janela",
         "save_settings": "Salvar Configurações",
         "empty_url": "Por favor, insira um link válido.",
         "downloading": "Baixando... (Pode demorar dependendo da internet)",
@@ -78,11 +114,35 @@ LANGUAGES = {
         "spotify": "Spotify Downloader",
         "tiktok": "TikTok Downloader",
         "instagram": "Instagram Downloader",
+        "twitter": "Twitter Downloader",
+        "reddit": "Reddit Downloader",
+        "pinterest": "Pinterest Downloader",
+        "facebook": "Facebook Downloader",
+        "kwai": "Kwai Downloader",
+        "vimeo": "Vimeo Downloader",
+        "twitch": "Twitch Downloader",
+        "soundcloud": "SoundCloud Downloader",
+        "bandcamp": "Bandcamp Downloader",
+        "rumble": "Rumble Downloader",
+        "bilibili": "BiliBili Downloader",
+        "others": "All Services",
+        "others_menu": "All Services",
         "settings": "Settings",
         "placeholder_yt": "Paste YouTube video link here...",
         "placeholder_sp": "Paste Spotify track link here... (Audio Only)",
         "placeholder_tk": "Paste TikTok video link here...",
         "placeholder_ig": "Paste Instagram Reels/Post link here...",
+        "placeholder_tw": "Paste X/Twitter link here...",
+        "placeholder_re": "Paste Reddit post link here...",
+        "placeholder_pi": "Paste Pinterest pin link here...",
+        "placeholder_fa": "Paste Facebook video link here...",
+        "placeholder_kw": "Paste Kwai video link here...",
+        "placeholder_vi": "Paste Vimeo video link here...",
+        "placeholder_tw": "Paste Twitch clip/VOD link here...",
+        "placeholder_so": "Paste SoundCloud track link here... (Audio Only)",
+        "placeholder_ba": "Paste Bandcamp track link here... (Audio Only)",
+        "placeholder_ru": "Paste Rumble video link here...",
+        "placeholder_bi": "Paste BiliBili video link here...",
         "btn_download": "Download",
         "video_audio": "Video + Audio",
         "audio_only": "Audio Only",
@@ -90,6 +150,7 @@ LANGUAGES = {
         "best_quality": "Best Quality",
         "select_folder": "Choose Download Folder",
         "language_lbl": "App Language:",
+        "resizable_window_lbl": "Allow Window Resizing",
         "save_settings": "Save Settings",
         "empty_url": "Please enter a valid link.",
         "downloading": "Downloading... (May take a while depending on internet)",
@@ -114,11 +175,35 @@ LANGUAGES = {
         "spotify": "Descargador de Spotify",
         "tiktok": "Descargador de TikTok",
         "instagram": "Descargador de Instagram",
+        "twitter": "Descargador de Twitter",
+        "reddit": "Descargador de Reddit",
+        "pinterest": "Descargador de Pinterest",
+        "facebook": "Descargador de Facebook",
+        "kwai": "Descargador de Kwai",
+        "vimeo": "Descargador de Vimeo",
+        "twitch": "Descargador de Twitch",
+        "soundcloud": "Descargador de SoundCloud",
+        "bandcamp": "Descargador de Bandcamp",
+        "rumble": "Descargador de Rumble",
+        "bilibili": "Descargador de BiliBili",
+        "others": "Otros",
+        "others_menu": "Otros Servicios",
         "settings": "Ajustes",
         "placeholder_yt": "Pega el enlace del video de YouTube aquí...",
         "placeholder_sp": "Pega el enlace de la pista de Spotify... (Solo Audio)",
         "placeholder_tk": "Pega el enlace del video de TikTok aquí...",
         "placeholder_ig": "Pega el enlace de Reels/Post de Instagram...",
+        "placeholder_tw": "Pega el enlace de X/Twitter aquí...",
+        "placeholder_re": "Pega el enlace del post de Reddit aquí...",
+        "placeholder_pi": "Pega el enlace del Pin de Pinterest aquí...",
+        "placeholder_fa": "Pega el enlace del video de Facebook aquí...",
+        "placeholder_kw": "Pega el enlace del video de Kwai aquí...",
+        "placeholder_vi": "Pega el enlace del video de Vimeo aquí...",
+        "placeholder_tw": "Pega el enlace del clip/VOD de Twitch aquí...",
+        "placeholder_so": "Pega el enlace de la pista de SoundCloud... (Solo Audio)",
+        "placeholder_ba": "Pega el enlace de la pista de Bandcamp... (Solo Audio)",
+        "placeholder_ru": "Pega el enlace del video de Rumble aquí...",
+        "placeholder_bi": "Pega el enlace del video de BiliBili aquí...",
         "btn_download": "Descargar",
         "video_audio": "Video + Audio",
         "audio_only": "Solo Audio",
@@ -150,11 +235,35 @@ LANGUAGES = {
         "spotify": "Загрузчик Spotify",
         "tiktok": "Загрузчик TikTok",
         "instagram": "Загрузчик Instagram",
+        "twitter": "Загрузчик Twitter",
+        "reddit": "Загрузчик Reddit",
+        "pinterest": "Загрузчик Pinterest",
+        "facebook": "Загрузчик Facebook",
+        "kwai": "Загрузчик Kwai",
+        "vimeo": "Загрузчик Vimeo",
+        "twitch": "Загрузчик Twitch",
+        "soundcloud": "Загрузчик SoundCloud",
+        "bandcamp": "Загрузчик Bandcamp",
+        "rumble": "Загрузчик Rumble",
+        "bilibili": "Загрузчик BiliBili",
+        "others": "Другие",
+        "others_menu": "Другие сервисы",
         "settings": "Настройки",
         "placeholder_yt": "Вставьте ссылку на видео YouTube...",
         "placeholder_sp": "Вставьте ссылку на трек Spotify... (Только аудио)",
         "placeholder_tk": "Вставьте ссылку на видео TikTok...",
         "placeholder_ig": "Вставьте ссылку на Reels/Post Instagram...",
+        "placeholder_tw": "Вставьте ссылку на X/Twitter...",
+        "placeholder_re": "Вставьте ссылку на пост Reddit...",
+        "placeholder_pi": "Вставьте ссылку на пин Pinterest...",
+        "placeholder_fa": "Вставьте ссылку на видео Facebook...",
+        "placeholder_kw": "Вставьте ссылку на видео Kwai...",
+        "placeholder_vi": "Вставьте ссылку на видео Vimeo...",
+        "placeholder_tw": "Вставьте ссылку на клип/VOD Twitch...",
+        "placeholder_so": "Вставьте ссылку на трек SoundCloud... (Только аудио)",
+        "placeholder_ba": "Вставьте ссылку на трек Bandcamp... (Только аудио)",
+        "placeholder_ru": "Вставьте ссылку на видео Rumble...",
+        "placeholder_bi": "Вставьте ссылку на видео BiliBili...",
         "btn_download": "Скачать",
         "video_audio": "Видео + Аудио",
         "audio_only": "Только Аудио",
@@ -186,11 +295,35 @@ LANGUAGES = {
         "spotify": "Spotify ダウンローダー",
         "tiktok": "TikTok ダウンローダー",
         "instagram": "Instagram ダウンローダー",
+        "twitter": "Twitter ダウンローダー",
+        "reddit": "Reddit ダウンローダー",
+        "pinterest": "Pinterest ダウンローダー",
+        "facebook": "Facebook ダウンローダー",
+        "kwai": "Kwai ダウンローダー",
+        "vimeo": "Vimeo ダウンローダー",
+        "twitch": "Twitch ダウンローダー",
+        "soundcloud": "SoundCloud ダウンローダー",
+        "bandcamp": "Bandcamp ダウンローダー",
+        "rumble": "Rumble ダウンローダー",
+        "bilibili": "BiliBili ダウンローダー",
+        "others": "その他",
+        "others_menu": "その他のサービス",
         "settings": "設定",
         "placeholder_yt": "YouTubeの動画リンクを貼り付け...",
         "placeholder_sp": "Spotifyのリンクを貼り付け... (音声のみ)",
         "placeholder_tk": "TikTokの動画リンクを貼り付け...",
         "placeholder_ig": "InstagramのReels/Postリンクを貼り付け...",
+        "placeholder_tw": "X/Twitterのリンクを貼り付け...",
+        "placeholder_re": "Redditの投稿リンクを貼り付け...",
+        "placeholder_pi": "Pinterestのピンリンクを貼り付け...",
+        "placeholder_fa": "Facebookの動画リンクを貼り付け...",
+        "placeholder_kw": "Kwaiの動画リンクを貼り付け...",
+        "placeholder_vi": "Vimeoの動画リンクを貼り付け...",
+        "placeholder_tw": "Twitchのクリップ/VODリンクを貼り付け...",
+        "placeholder_so": "SoundCloudのトラックリンクを貼り付け... (音声のみ)",
+        "placeholder_ba": "Bandcampのトラックリンクを貼り付け... (音声のみ)",
+        "placeholder_ru": "Rumbleの動画リンクを貼り付け...",
+        "placeholder_bi": "BiliBiliの動画リンクを貼り付け...",
         "btn_download": "ダウンロード",
         "video_audio": "ビデオ + 音声",
         "audio_only": "音声のみ",
@@ -198,6 +331,7 @@ LANGUAGES = {
         "best_quality": "最高画質",
         "select_folder": "保存先フォルダを選択",
         "language_lbl": "アプリの言語:",
+        "resizable_window_lbl": "ウィンドウのサイズ変更を許可",
         "save_settings": "設定を保存",
         "empty_url": "有効なリンクを入力してください。",
         "downloading": "ダウンロード中... (回線により時間がかかります)",
@@ -222,11 +356,35 @@ LANGUAGES = {
         "spotify": "Spotify 下载器",
         "tiktok": "TikTok 下载器",
         "instagram": "Instagram 下载器",
+        "twitter": "Twitter 下载器",
+        "reddit": "Reddit 下载器",
+        "pinterest": "Pinterest 下载器",
+        "facebook": "Facebook 下载器",
+        "kwai": "Kwai 下载器",
+        "vimeo": "Vimeo 下载器",
+        "twitch": "Twitch 下载器",
+        "soundcloud": "SoundCloud 下载器",
+        "bandcamp": "Bandcamp 下载器",
+        "rumble": "Rumble 下载器",
+        "bilibili": "BiliBili 下载器",
+        "others": "其他",
+        "others_menu": "其他服务",
         "settings": "设置",
         "placeholder_yt": "在此粘贴YouTube视频链接...",
         "placeholder_sp": "在此粘贴Spotify歌曲链接... (仅音频)",
         "placeholder_tk": "在此粘贴TikTok视频链接...",
         "placeholder_ig": "在此粘贴Instagram Reels/Post链接...",
+        "placeholder_tw": "在此粘贴X/Twitter链接...",
+        "placeholder_re": "在此粘贴Reddit帖子链接...",
+        "placeholder_pi": "在此粘贴Pinterest的Pin链接...",
+        "placeholder_fa": "在此粘贴Facebook视频链接...",
+        "placeholder_kw": "在此粘贴Kwai视频链接...",
+        "placeholder_vi": "在此粘贴Vimeo视频链接...",
+        "placeholder_tw": "在此粘贴Twitch剪辑/VOD链接...",
+        "placeholder_so": "在此粘贴SoundCloud曲目链接... (仅音频)",
+        "placeholder_ba": "在此粘贴Bandcamp曲目链接... (仅音频)",
+        "placeholder_ru": "在此粘贴Rumble视频链接...",
+        "placeholder_bi": "在此粘贴BiliBili视频链接...",
         "btn_download": "下载",
         "video_audio": "视频 + 音频",
         "audio_only": "仅音频",
@@ -234,6 +392,7 @@ LANGUAGES = {
         "best_quality": "最佳质量",
         "select_folder": "选择下载文件夹",
         "language_lbl": "应用语言:",
+        "resizable_window_lbl": "允许调整窗口大小",
         "save_settings": "保存设置",
         "empty_url": "请输入有效的链接。",
         "downloading": "下载中... (根据网络可能需要一些时间)",
@@ -254,7 +413,139 @@ LANGUAGES = {
     }
 }
 
+
+class OthersFrame(ctk.CTkScrollableFrame):
+    def __init__(self, master, app_ref):
+        super().__init__(master, corner_radius=0, fg_color=BG_COLOR)
+        self.grid_columnconfigure(0, weight=1)
+        self.app_ref = app_ref
+
+        # Card Central
+        self.card = ctk.CTkFrame(self, fg_color=CARD_COLOR, corner_radius=25)
+        self.card.grid(row=0, column=0, padx=40, pady=40, sticky="nsew")
+
+        fonte_titulo = ctk.CTkFont(size=24, weight="bold")
+
+        self.title_label = ctk.CTkLabel(self.card, text="Todos os Serviços", font=fonte_titulo, text_color=TEXT_COLOR)
+        self.title_label.grid(row=0, column=0, pady=(40, 30))
+
+        # services = (Name, Command, VideoSupport, AudioSupport, IconKey)
+        services = [
+            ("YouTube", app_ref.show_youtube, True, True, "YouTube"),
+            ("Spotify", app_ref.show_spotify, False, True, "Spotify"),
+            ("TikTok", app_ref.show_tiktok, True, True, "TikTok"),
+            ("Instagram", app_ref.show_instagram, True, True, "Instagram"),
+            ("Twitter (X)", app_ref.show_twitter, True, True, "Twitter"),
+            ("Reddit", app_ref.show_reddit, True, True, "Reddit"),
+            ("Pinterest", app_ref.show_pinterest, True, True, "Pinterest"),
+            ("Facebook", app_ref.show_facebook, True, True, "Facebook"),
+            ("Kwai", app_ref.show_kwai, True, True, "Kwai"),
+            ("Vimeo", app_ref.show_vimeo, True, True, "Vimeo"),
+            ("Twitch", app_ref.show_twitch, True, True, "Twitch"),
+            ("SoundCloud", app_ref.show_soundcloud, False, True, "SoundCloud"),
+            ("Bandcamp", app_ref.show_bandcamp, False, True, "Bandcamp"),
+            ("BiliBili", app_ref.show_bilibili, True, True, "BiliBili")
+        ]
+
+        row = 1
+        col = 0
+        self.service_cards = []
+        for text, command, has_video, has_audio, icon_key in services:
+            # Create a small nested frame for each service card
+            srv_card = ctk.CTkFrame(self.card, fg_color=ENTRY_BG, corner_radius=15, cursor="hand2", width=140, height=160)
+            srv_card.grid(row=row, column=col, padx=15, pady=15)
+            srv_card.grid_propagate(False)
+            srv_card.grid_columnconfigure(0, weight=1)
+            
+            # Icon
+            img_ctk = None
+            if icon_key in ICONS_B64:
+                try:
+                    img_data = base64.b64decode(ICONS_B64[icon_key])
+                    img = Image.open(io.BytesIO(img_data)).resize((48, 48), Image.Resampling.LANCZOS)
+                    img_ctk = ctk.CTkImage(light_image=img, dark_image=img, size=(48, 48))
+                except Exception as e:
+                    print(f"Error loading icon for {icon_key}: {e}")
+
+            if img_ctk:
+                icon_display = ctk.CTkLabel(srv_card, text="", image=img_ctk, cursor="hand2")
+                icon_display.grid(row=0, column=0, pady=(15, 5))
+            else:
+                icon_display = ctk.CTkLabel(srv_card, text="🔌", font=ctk.CTkFont(size=36), cursor="hand2")
+                icon_display.grid(row=0, column=0, pady=(15, 5))
+                
+            # Name
+            name_lbl = ctk.CTkLabel(srv_card, text=text, font=ctk.CTkFont(size=14, weight="bold"), text_color=TEXT_COLOR, cursor="hand2")
+            name_lbl.grid(row=1, column=0, pady=(0, 5))
+            
+            # Indicators
+            ind_frame = ctk.CTkFrame(srv_card, fg_color="transparent", cursor="hand2")
+            ind_frame.grid(row=2, column=0, pady=(0, 15))
+            
+            vid_color = ACCENT_COLOR if has_video else "#333333"
+            aud_color = ACCENT_COLOR if has_audio else "#333333"
+            
+            vid_lbl = ctk.CTkLabel(ind_frame, text="▶", font=ctk.CTkFont(size=16), text_color=vid_color, cursor="hand2")
+            vid_lbl.grid(row=0, column=0, padx=5)
+            
+            aud_lbl = ctk.CTkLabel(ind_frame, text="ılı", font=ctk.CTkFont(size=18, weight="bold"), text_color=aud_color, cursor="hand2")
+            aud_lbl.grid(row=0, column=1, padx=5)
+
+            # --- Event Binding ---
+            def on_enter(e, c=srv_card):
+                c.configure(fg_color=ACCENT_HOVER)
+                
+            def on_leave(e, c=srv_card):
+                c.configure(fg_color=ENTRY_BG)
+                
+            def on_click(e, cmd=command):
+                cmd()
+
+            elements = [srv_card, icon_display, name_lbl, ind_frame, vid_lbl, aud_lbl]
+            for elem in elements:
+                elem.bind("<Enter>", on_enter)
+                elem.bind("<Leave>", on_leave)
+                elem.bind("<Button-1>", on_click)
+
+            self.service_cards.append(srv_card)
+        
+        self.current_cols = 0
+        self.bind("<Configure>", self.reorganize_cards, add="+")
+
+        self.translate_ui(app_ref.config.get("language", "Português"))
+
+    def reorganize_cards(self, event):
+        if event.widget == self:
+            available_width = event.width
+            # Largura do card é 140. Padding left+right é 15+15=30. Total por card = 170.
+            # Adicionar um pequeno espaço extra de margem para evitar aperto no scroll
+            cols = max(1, (available_width - 80) // 170) 
+            
+            if getattr(self, 'current_cols', 0) != cols:
+                self.current_cols = cols
+                self.title_label.grid(row=0, column=0, columnspan=cols, pady=(40, 30))
+                
+                # Reseta as larguras das colunas e define as ativas
+                for i in range(20):
+                    self.card.grid_columnconfigure(i, weight=0)
+                for i in range(cols):
+                    self.card.grid_columnconfigure(i, weight=1)
+                    
+                # Reorganiza o grid de cada card baseando-se no limite de colunas
+                for idx, card in enumerate(self.service_cards):
+                    r = 1 + (idx // cols)
+                    c = idx % cols
+                    card.grid(row=r, column=c, padx=15, pady=15)
+
+    def translate_ui(self, lang):
+        t = LANGUAGES.get(lang, LANGUAGES["Português"])
+        try:
+            self.title_label.configure(text=t.get("others_menu", "Todos os Serviços"))
+        except:
+            pass
+
 class HistoryFrame(ctk.CTkFrame):
+
     def __init__(self, master, app_ref):
         super().__init__(master, corner_radius=0, fg_color=BG_COLOR)
         self.grid_columnconfigure(0, weight=1)
@@ -419,7 +710,17 @@ class SettingsFrame(ctk.CTkFrame):
             dropdown_fg_color=ENTRY_BG, dropdown_hover_color=ACCENT_HOVER, dropdown_text_color=TEXT_COLOR, text_color=TEXT_COLOR,
             corner_radius=10, height=35
         )
-        self.menu_lang.grid(row=4, column=0, pady=(0, 30))
+        self.menu_lang.grid(row=4, column=0, pady=(0, 20))
+
+        # Resizable Window Option
+        self.resizable_window_var = ctk.BooleanVar(value=self.app_ref.config.get("resizable_window", False))
+        self.switch_resize = ctk.CTkSwitch(
+            self.card, text="Permitir Redimensionar Janela",
+            variable=self.resizable_window_var,
+            font=self.fonte_texto, text_color=TEXT_COLOR,
+            progress_color=ACCENT_COLOR, button_color="#DDDDDD", button_hover_color="#FFFFFF"
+        )
+        self.switch_resize.grid(row=5, column=0, pady=(0, 30))
 
         # Save button
         self.btn_save = ctk.CTkButton(
@@ -427,10 +728,10 @@ class SettingsFrame(ctk.CTkFrame):
             command=self.save_settings, font=ctk.CTkFont(size=16, weight="bold"),
             fg_color=ACCENT_COLOR, hover_color=ACCENT_HOVER, corner_radius=20, height=45, width=220
         )
-        self.btn_save.grid(row=5, column=0, pady=(20, 10))
+        self.btn_save.grid(row=6, column=0, pady=(10, 10))
         
         self.status_label = ctk.CTkLabel(self.card, text="", font=ctk.CTkFont(size=13))
-        self.status_label.grid(row=6, column=0, pady=(0, 20))
+        self.status_label.grid(row=7, column=0, pady=(0, 20))
 
         self.translate_ui(self.lang_var.get())
 
@@ -445,15 +746,23 @@ class SettingsFrame(ctk.CTkFrame):
 
     def translate_ui(self, lang):
         t = LANGUAGES.get(lang, LANGUAGES["Português"])
-        self.title_label.configure(text=t["settings"])
-        self.btn_folder.configure(text=t["select_folder"])
-        self.lbl_lang.configure(text=t["language_lbl"])
-        self.btn_save.configure(text=t["save_settings"])
+        try:
+            self.title_label.configure(text=t["settings"])
+            self.btn_folder.configure(text=t["select_folder"])
+            self.lbl_lang.configure(text=t["language_lbl"])
+            self.btn_save.configure(text=t["save_settings"])
+            self.switch_resize.configure(text=t.get("resizable_window_lbl", "Allow Window Resizing"))
+        except:
+            pass
 
     def save_settings(self):
         self.app_ref.config["download_folder"] = self.folder_var.get()
         self.app_ref.config["language"] = self.lang_var.get()
+        is_resizable = self.resizable_window_var.get()
+        self.app_ref.config["resizable_window"] = is_resizable
         self.app_ref.save_config()
+        self.app_ref.resizable(is_resizable, is_resizable)
+        
         self.status_label.configure(text="Configurações Salvas!", text_color="#00FF00")
         
         # Ocultar mensagem após 3 segundos
@@ -605,6 +914,13 @@ class DownloaderFrame(ctk.CTkFrame):
 
     def start_download(self):
         url = self.url_entry.get().strip()
+        
+        # Extrair a URL limpa de textos compartilhados de aplicativos (ex: BiliBili)
+        import re
+        url_match = re.search(r'(https?://[^\s]+)', url)
+        if url_match:
+            url = url_match.group(1)
+            
         lang = self.app_ref.config.get("language", "Português")
         t = LANGUAGES.get(lang, LANGUAGES["Português"])
 
@@ -694,20 +1010,21 @@ class DownloaderFrame(ctk.CTkFrame):
                     self.app_ref.after(0, self.update_progress, 1.0)
 
             ydl_opts = {
-                'outtmpl': os.path.join(download_folder, f'%(title)s - dummy.%(ext)s'),
+                'outtmpl': os.path.join(download_folder, f'%(title).70s - dummy.%(ext)s'),
                 'noplaylist': True,
                 'quiet': True,
                 'no_warnings': True,
                 'ffmpeg_location': ffmpeg_path,
                 'postprocessors': [],
-                'progress_hooks': [progress_hook]
+                'progress_hooks': [progress_hook],
+                'windowsfilenames': True
             }
 
             if download_type == t["audio_only"] or self.audio_only:
                 # Baixa a melhor fonte possível e converte para MP3 usando FFmpeg
                 ydl_opts['format'] = 'bestaudio/best'
                 sufixo_nome = "audio"
-                ydl_opts['outtmpl'] = os.path.join(download_folder, f'%(title)s - {sufixo_nome}.%(ext)s')
+                ydl_opts['outtmpl'] = os.path.join(download_folder, f'%(title).70s - {sufixo_nome}.%(ext)s')
                 ydl_opts['postprocessors'].append({
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
@@ -715,9 +1032,9 @@ class DownloaderFrame(ctk.CTkFrame):
                 })
             elif download_type == t["video_only"]:
                 # Força a baixar o formato unificado/melhor
-                ydl_opts['format'] = f'bestvideo[ext=mp4]{quality_str}/best{quality_str}/best'
+                ydl_opts['format'] = f'bestvideo[ext=mp4]{quality_str}/best{quality_str}/best/bestvideo'
                 sufixo_nome = f"vídeo - {quality}"
-                ydl_opts['outtmpl'] = os.path.join(download_folder, f'%(title)s - {sufixo_nome}.%(ext)s')
+                ydl_opts['outtmpl'] = os.path.join(download_folder, f'%(title).70s - {sufixo_nome}.%(ext)s')
                 # Remuxa para mp4 passando o argumento '-an' (No Audio) para remover a trilha sonora
                 ydl_opts['postprocessors'].append({
                     'key': 'FFmpegVideoConvertor',
@@ -726,9 +1043,9 @@ class DownloaderFrame(ctk.CTkFrame):
                 ydl_opts['postprocessor_args'] = ['-an']
             else:
                 # Vídeo e Áudio combinados
-                ydl_opts['format'] = f'bestvideo[ext=mp4]{quality_str}+bestaudio[ext=m4a]/best[ext=mp4]{quality_str}/best'
+                ydl_opts['format'] = f'bestvideo[ext=mp4]{quality_str}+bestaudio[ext=m4a]/best[ext=mp4]{quality_str}/best/bestvideo/bestaudio'
                 sufixo_nome = f"video e audio - {quality}"
-                ydl_opts['outtmpl'] = os.path.join(download_folder, f'%(title)s - {sufixo_nome}.%(ext)s')
+                ydl_opts['outtmpl'] = os.path.join(download_folder, f'%(title).70s - {sufixo_nome}.%(ext)s')
                 # Se baixar as faixas separadas, o ffmpeg faz o merge automaticamente para o formato padrão do vídeo (mkv/mp4)
                 # Vamos forçar que o resultado final sempre seja mp4 para compatibilidade Windows
                 ydl_opts['merge_output_format'] = 'mp4'
@@ -770,8 +1087,32 @@ class DownloaderFrame(ctk.CTkFrame):
                 service = "Spotify"
             elif "tiktok" in url_lower_orig:
                 service = "TikTok"
+
             elif "instagram" in url_lower_orig:
                 service = "Instagram"
+            elif "twitter.com" in url_lower_orig or "x.com" in url_lower_orig:
+                service = "Twitter"
+            elif "reddit.com" in url_lower_orig:
+                service = "Reddit"
+            elif "pinterest." in url_lower_orig:
+                service = "Pinterest"
+            elif "facebook.com" in url_lower_orig or "fb.watch" in url_lower_orig:
+                service = "Facebook"
+            elif "kwai.com" in url_lower_orig:
+                service = "Kwai"
+            elif "vimeo.com" in url_lower_orig:
+                service = "Vimeo"
+            elif "twitch.tv" in url_lower_orig:
+                service = "Twitch"
+            elif "soundcloud.com" in url_lower_orig:
+                service = "SoundCloud"
+            elif "bandcamp.com" in url_lower_orig:
+                service = "Bandcamp"
+            elif "rumble.com" in url_lower_orig:
+                service = "Rumble"
+            elif "bilibili.tv" in url_lower_orig or "bilibili.com" in url_lower_orig:
+                service = "BiliBili"
+    
             elif "youtube" in url_lower_orig or "youtu.be" in url_lower_orig or "ytsearch1" in url_lower_orig:
                 service = "YouTube"
 
@@ -819,55 +1160,92 @@ class UniversalDownloaderApp(ctk.CTk):
 
         self.load_config()
 
-        self.geometry("850x500")
-        self.resizable(False, False)
+        self.geometry("850x640")
+        is_resizable = self.config.get("resizable_window", False)
+        self.resizable(is_resizable, is_resizable)
 
         # Configurar Grid principal
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
         # --- Sidebar ---
-        self.sidebar_frame = ctk.CTkFrame(self, width=200, corner_radius=0, fg_color=SIDEBAR_COLOR)
+        self.sidebar_frame = ctk.CTkScrollableFrame(self, width=240, corner_radius=0, fg_color=SIDEBAR_COLOR)
         self.sidebar_frame.grid(row=0, column=0, sticky="nsew")
-        self.sidebar_frame.grid_rowconfigure(7, weight=1)
 
         # Cabeçalho da Sidebar (Logo em texto grosso)
-        self.logo_label = ctk.CTkLabel(self.sidebar_frame, text="Universal Media\nDownloader", font=ctk.CTkFont(size=18, weight="bold"), text_color=TEXT_COLOR, justify="center")
-        self.logo_label.grid(row=0, column=0, padx=10, pady=(30, 30))
+        try:
+            logo_img_data = Image.open(os.path.join(os.path.dirname(__file__), "favIcon.ico")).resize((48, 48), Image.Resampling.LANCZOS)
+            self.logo_image = ctk.CTkImage(light_image=logo_img_data, dark_image=logo_img_data, size=(48, 48))
+            self.logo_label = ctk.CTkLabel(self.sidebar_frame, text="Universal Media\nDownloader", image=self.logo_image, compound="top", font=ctk.CTkFont(size=16, weight="bold"), text_color=TEXT_COLOR, justify="center")
+        except Exception:
+            self.logo_label = ctk.CTkLabel(self.sidebar_frame, text="Universal Media\nDownloader", font=ctk.CTkFont(size=18, weight="bold"), text_color=TEXT_COLOR, justify="center")
+            
+        self.logo_label.grid(row=0, column=0, padx=10, pady=(20, 20))
 
         # Botões do Sidebar (Nomes + Emojis)
         self.btn_youtube = self.create_sidebar_button("▷ YouTube", 1, self.show_youtube)
         self.btn_spotify = self.create_sidebar_button("🎵 Spotify", 2, self.show_spotify)
         self.btn_tiktok = self.create_sidebar_button("📱 TikTok", 3, self.show_tiktok)
         self.btn_instagram = self.create_sidebar_button("📸 Instagram", 4, self.show_instagram)
+        self.btn_others = self.create_sidebar_button("🌐 Todos os Serviços", 5, self.show_others)
         
         # Divider and Settings
         self.divider = ctk.CTkFrame(self.sidebar_frame, height=2, fg_color=ENTRY_BG)
-        self.divider.grid(row=5, column=0, padx=20, pady=(20, 10), sticky="ew")
+        self.divider.grid(row=6, column=0, padx=20, pady=(20, 10), sticky="ew")
         
-        self.btn_history = self.create_sidebar_button("🕒 Histórico", 6, self.show_history)
-        self.btn_settings = self.create_sidebar_button("⚙ Configurações", 7, self.show_settings)
+        self.btn_history = self.create_sidebar_button("🕒 Histórico", 7, self.show_history)
+        self.btn_settings = self.create_sidebar_button("⚙ Configurações", 8, self.show_settings)
 
-        self.buttons = [self.btn_youtube, self.btn_spotify, self.btn_tiktok, self.btn_instagram, self.btn_history, self.btn_settings]
+        self.buttons = [self.btn_youtube, self.btn_spotify, self.btn_tiktok, self.btn_instagram, self.btn_others, self.btn_history, self.btn_settings]
 
         # Version label (visible but subtle)
         self.version_label = ctk.CTkLabel(self.sidebar_frame, text="", font=ctk.CTkFont(size=11), text_color="#5A5C66")
-        self.version_label.grid(row=8, column=0, pady=(0, 10), sticky="s")
+        self.version_label.grid(row=9, column=0, pady=(20, 10))
 
         # --- Frames (Páginas) ---
         self.youtube_frame = DownloaderFrame(self, self, "youtube", "placeholder_yt", audio_only=False)
         self.spotify_frame = DownloaderFrame(self, self, "spotify", "placeholder_sp", audio_only=True)
         self.tiktok_frame = DownloaderFrame(self, self, "tiktok", "placeholder_tk", audio_only=False)
         self.instagram_frame = DownloaderFrame(self, self, "instagram", "placeholder_ig", audio_only=False)
+        self.others_frame = OthersFrame(self, self)
+        
+        self.twitter_frame = DownloaderFrame(self, self, "twitter", "placeholder_tw", audio_only=False)
+        self.reddit_frame = DownloaderFrame(self, self, "reddit", "placeholder_re", audio_only=False)
+        self.pinterest_frame = DownloaderFrame(self, self, "pinterest", "placeholder_pi", audio_only=False)
+        self.facebook_frame = DownloaderFrame(self, self, "facebook", "placeholder_fa", audio_only=False)
+        self.kwai_frame = DownloaderFrame(self, self, "kwai", "placeholder_kw", audio_only=False)
+        self.vimeo_frame = DownloaderFrame(self, self, "vimeo", "placeholder_vi", audio_only=False)
+        self.twitch_frame = DownloaderFrame(self, self, "twitch", "placeholder_tw", audio_only=False)
+        self.soundcloud_frame = DownloaderFrame(self, self, "soundcloud", "placeholder_so", audio_only=True)
+        self.bandcamp_frame = DownloaderFrame(self, self, "bandcamp", "placeholder_ba", audio_only=True)
+        self.bilibili_frame = DownloaderFrame(self, self, "bilibili", "placeholder_bi", audio_only=False)
+
         self.history_frame = HistoryFrame(self, self)
         self.settings_frame = SettingsFrame(self, self)
 
-        self.frames = [self.youtube_frame, self.spotify_frame, self.tiktok_frame, self.instagram_frame, self.history_frame, self.settings_frame]
+        self.frames = [
+            self.youtube_frame, self.spotify_frame, self.tiktok_frame, self.instagram_frame, self.others_frame,
+            self.twitter_frame, self.reddit_frame, self.pinterest_frame, self.facebook_frame, self.kwai_frame, 
+            self.vimeo_frame, self.twitch_frame, self.soundcloud_frame, self.bandcamp_frame, 
+            self.bilibili_frame, self.history_frame, self.settings_frame
+        ]
+    
 
         self.apply_translations(self.config.get("language", "Português"))
 
         # Selecionar YouTube por padrão
         self.show_youtube()
+        self.bind("<Configure>", self.check_menu_scroll)
+
+    def check_menu_scroll(self, event):
+        if event.widget == self:
+            # The required height is roughly 640 for all menu items to be fully visible and have some padding
+            if self.winfo_height() < 640:
+                self.sidebar_frame._scrollbar.grid(row=1, column=1, sticky="nesw", pady=6)
+            else:
+                self.sidebar_frame._scrollbar.grid_forget()
+                if hasattr(self.sidebar_frame, '_parent_canvas'):
+                    self.sidebar_frame._parent_canvas.yview_moveto(0)
 
     def load_config(self):
         default_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'VIDEOS')
@@ -901,17 +1279,23 @@ class UniversalDownloaderApp(ctk.CTk):
         self.title("Universal Media Downloader")
         
         # Apply labels text logic (with emoji prefix maintained)
+
         self.btn_youtube.configure(text="▷ " + t["youtube"].split(" ")[-1]) 
         self.btn_spotify.configure(text="🎵 " + t["spotify"].split(" ")[-1])
         self.btn_tiktok.configure(text="📱 " + t["tiktok"].split(" ")[-1])
         self.btn_instagram.configure(text="📸 " + t["instagram"].split(" ")[-1])
+        self.btn_others.configure(text="🌐 " + t.get("others", "Outros"))
         self.btn_history.configure(text="🕒 " + t.get("history", "Histórico"))
         self.btn_settings.configure(text="⚙ " + t["settings"])
         
-        self.version_label.configure(text=f"{t['version']}: 1.3.0")
+        self.version_label.configure(text=f"{t['version']}: 1.4.5")
         
-        for frame in [self.youtube_frame, self.spotify_frame, self.tiktok_frame, self.instagram_frame, self.history_frame]:
+        for frame in [self.youtube_frame, self.spotify_frame, self.tiktok_frame, self.instagram_frame, self.others_frame,
+                      self.twitter_frame, self.reddit_frame, self.pinterest_frame, self.facebook_frame, self.kwai_frame, 
+                      self.vimeo_frame, self.twitch_frame, self.soundcloud_frame, self.bandcamp_frame, 
+                      self.bilibili_frame, self.history_frame]:
             frame.translate_ui(lang)
+    
 
     def create_sidebar_button(self, text, row, command):
         btn = ctk.CTkButton(
@@ -955,12 +1339,69 @@ class UniversalDownloaderApp(ctk.CTk):
         self.select_sidebar_button(self.btn_tiktok)
         self.tiktok_frame.grid(row=0, column=1, sticky="nsew")
 
+
     def show_instagram(self):
         self.hide_all_frames()
         self.select_sidebar_button(self.btn_instagram)
         self.instagram_frame.grid(row=0, column=1, sticky="nsew")
 
+    def show_others(self):
+        self.hide_all_frames()
+        self.select_sidebar_button(self.btn_others)
+        self.others_frame.grid(row=0, column=1, sticky="nsew")
+
+    def show_twitter(self):
+        self.hide_all_frames()
+        self.select_sidebar_button(self.btn_others)  # Mantém o menu lateral selecionado
+        self.twitter_frame.grid(row=0, column=1, sticky="nsew")
+        
+    def show_reddit(self):
+        self.hide_all_frames()
+        self.select_sidebar_button(self.btn_others)
+        self.reddit_frame.grid(row=0, column=1, sticky="nsew")
+        
+    def show_pinterest(self):
+        self.hide_all_frames()
+        self.select_sidebar_button(self.btn_others)
+        self.pinterest_frame.grid(row=0, column=1, sticky="nsew")
+        
+    def show_facebook(self):
+        self.hide_all_frames()
+        self.select_sidebar_button(self.btn_others)
+        self.facebook_frame.grid(row=0, column=1, sticky="nsew")
+        
+    def show_kwai(self):
+        self.hide_all_frames()
+        self.select_sidebar_button(self.btn_others)
+        self.kwai_frame.grid(row=0, column=1, sticky="nsew")
+        
+    def show_vimeo(self):
+        self.hide_all_frames()
+        self.select_sidebar_button(self.btn_others)
+        self.vimeo_frame.grid(row=0, column=1, sticky="nsew")
+        
+    def show_twitch(self):
+        self.hide_all_frames()
+        self.select_sidebar_button(self.btn_others)
+        self.twitch_frame.grid(row=0, column=1, sticky="nsew")
+        
+    def show_soundcloud(self):
+        self.hide_all_frames()
+        self.select_sidebar_button(self.btn_others)
+        self.soundcloud_frame.grid(row=0, column=1, sticky="nsew")
+        
+    def show_bandcamp(self):
+        self.hide_all_frames()
+        self.select_sidebar_button(self.btn_others)
+        self.bandcamp_frame.grid(row=0, column=1, sticky="nsew")
+        
+    def show_bilibili(self):
+        self.hide_all_frames()
+        self.select_sidebar_button(self.btn_others)
+        self.bilibili_frame.grid(row=0, column=1, sticky="nsew")
+
     def show_history(self):
+    
         self.hide_all_frames()
         self.select_sidebar_button(self.btn_history)
         self.history_frame.grid(row=0, column=1, sticky="nsew")

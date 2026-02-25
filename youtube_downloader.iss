@@ -1,6 +1,6 @@
 [Setup]
 AppName=Universal Media Downloader
-AppVersion=1.3.0
+AppVersion=1.4.0
 DefaultDirName={autopf}\Universal Media Downloader
 DefaultGroupName=Universal Media Downloader
 OutputDir=d:\MyPrograms\UniversalMediaDownloader
@@ -8,6 +8,10 @@ OutputBaseFilename=Universal_Media_Downloader_Setup
 SetupIconFile=favIcon.ico
 Compression=lzma
 SolidCompression=yes
+AppPublisher=Universal Media Soft
+AppPublisherURL=https://github.com/
+AppSupportURL=https://github.com/
+AppUpdatesURL=https://github.com/
 PrivilegesRequired=lowest
 DisableProgramGroupPage=yes
 
