@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['d:\\MyPrograms\\UniversalMediaDownloader\\youtube_downloader.py'],
+    ['youtube_downloader.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -19,10 +19,9 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.datas,
     [],
-    name='universal downloader',
+    exclude_binaries=True,
+    name='Paroni Downloader',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -37,4 +36,14 @@ exe = EXE(
     entitlements_file=None,
     icon='favIcon.ico',
     version='versioninfo.txt',
+)
+
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='Paroni Downloader',
 )

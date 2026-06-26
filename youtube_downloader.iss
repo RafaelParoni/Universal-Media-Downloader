@@ -1,14 +1,14 @@
 [Setup]
-AppName=Universal Media Downloader
-AppVersion=1.4.5
-DefaultDirName={autopf}\Universal Media Downloader
-DefaultGroupName=Universal Media Downloader
-OutputDir=d:\MyPrograms\UniversalMediaDownloader
-OutputBaseFilename=Universal_Media_Downloader_Setup
+AppName=Paroni Downloader
+AppVersion=1.4.6
+DefaultDirName={autopf}\Paroni Downloader
+DefaultGroupName=Paroni Downloader
+OutputDir=dist
+OutputBaseFilename=Paroni_Downloader_Setup
 SetupIconFile=favIcon.ico
 Compression=lzma
 SolidCompression=yes
-AppPublisher=Universal Media Soft
+AppPublisher=Paroni Downloader Soft
 AppPublisherURL=https://universal-media-app.vercel.app/
 AppSupportURL=https://github.com/
 AppUpdatesURL=https://github.com/
@@ -26,11 +26,11 @@ Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
 Name: "desktopicon"; Description: "Create a desktop icon"; GroupDescription: "Additional icons:"; Flags: checkedonce
 
 [Files]
-Source: "d:\MyPrograms\UniversalMediaDownloader\dist\universal downloader.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dist\Paroni Downloader\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [INI]
 Filename: "{app}\lang_setup.ini"; Section: "Setup"; Key: "Language"; String: "{language}"
 
 [Icons]
-Name: "{autoprograms}\Universal Media Downloader"; Filename: "{app}\universal downloader.exe"
-Name: "{autodesktop}\Universal Media Downloader"; Filename: "{app}\universal downloader.exe"; Tasks: desktopicon
+Name: "{autoprograms}\Paroni Downloader"; Filename: "{app}\Paroni Downloader.exe"
+Name: "{autodesktop}\Paroni Downloader"; Filename: "{app}\Paroni Downloader.exe"; Tasks: desktopicon

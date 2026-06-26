@@ -1,10 +1,10 @@
-# Universal Media Downloader
+# Paroni Downloader
 
 ![Versão](https://img.shields.io/badge/versão-1.2.3-blue.svg)
 ![Plataforma](https://img.shields.io/badge/plataforma-Windows_10%2F11-lightgrey.svg)
 ![Licença](https://img.shields.io/badge/licença-MIT-green.svg)
 
-O **Universal Media Downloader** é um aplicativo de desktop moderno, leve e fácil de usar, projetado para baixar vídeos e áudios das redes sociais e plataformas de streaming mais populares, tudo em um só lugar.
+O **Paroni Downloader** é um aplicativo de desktop moderno, leve e fácil de usar, projetado para baixar vídeos e áudios das redes sociais e plataformas de streaming mais populares, tudo em um só lugar.
 
 ## ✨ Recursos
 
@@ -28,7 +28,7 @@ Você pode baixar o instalador compilado (`Universal_Media_Downloader_Setup.exe`
 
 1. Baixe o `setup.exe` mais recente.
 2. Execute o instalador e siga as instruções na tela.
-3. Abra o **Universal Media Downloader** pelo atalho na sua área de trabalho ou menu iniciar.
+3. Abra o **Paroni Downloader** pelo atalho na sua área de trabalho ou menu iniciar.
 
 ## 🛠️ Desenvolvimento e Compilação do Código-Fonte
 

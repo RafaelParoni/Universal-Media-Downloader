@@ -14,14 +14,14 @@ VSVersionInfo(
       [
         StringTable(
           '040904B0',
-          [StringStruct('CompanyName', 'Universal Media Soft'),
-           StringStruct('FileDescription', 'Universal Media Downloader'),
-           StringStruct('FileVersion', '1.4.5'),
-           StringStruct('InternalName', 'universal downloader'),
-           StringStruct('LegalCopyright', '© 2026 Universal Media Soft. All rights reserved.'),
-           StringStruct('OriginalFilename', 'universal downloader.exe'),
-           StringStruct('ProductName', 'Universal Media Downloader'),
-           StringStruct('ProductVersion', '1.4.5')])
+          [StringStruct('CompanyName', 'Paroni Soft'),
+           StringStruct('FileDescription', 'Paroni Downloader'),
+           StringStruct('FileVersion', '1.4.6'),
+           StringStruct('InternalName', 'Paroni downloader'),
+           StringStruct('LegalCopyright', '© 2026 Paroni Soft. All rights reserved.'),
+           StringStruct('OriginalFilename', 'Paroni downloader.exe'),
+           StringStruct('ProductName', 'Paroni Downloader'),
+           StringStruct('ProductVersion', '1.4.6')])
       ]
     ),
     VarFileInfo([VarStruct('Translation', [1033, 1200])])

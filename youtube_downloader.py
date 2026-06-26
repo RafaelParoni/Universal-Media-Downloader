@@ -6,6 +6,7 @@ import urllib.request
 import urllib.error
 import re
 import json
+import multiprocessing
 
 try:
     import customtkinter as ctk
@@ -15,8 +16,9 @@ try:
 except ImportError:
     import sys
     import subprocess
-    print("Instalando dependências...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "customtkinter", "yt-dlp", "imageio-ffmpeg", "pillow"])
+    if not getattr(sys, 'frozen', False):
+        print("Instalando dependências...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "customtkinter", "yt-dlp", "imageio-ffmpeg", "pillow"])
     import customtkinter as ctk
     import yt_dlp
     import imageio_ffmpeg
@@ -35,8 +37,8 @@ except:
 BG_COLOR = "#0A0B10"           # Fundo muito escuro (Janela principal)
 SIDEBAR_COLOR = "#0F111A"      # Fundo da barra lateral
 CARD_COLOR = "#151720"         # Fundo dos "cards" arredondados centrais
-ACCENT_COLOR = "#6C5CE7"       # Roxo Vibrante
-ACCENT_HOVER = "#5848C2"       # Roxo mais escuro
+ACCENT_COLOR = "#1c5d91"       # Azul Base
+ACCENT_HOVER = "#0e3256"       # Azul Escuro (Hover)
 ENTRY_BG = "#222433"           # Fundo das caixas de texto
 TEXT_COLOR = "#FFFFFF"         # Texto claro
 
@@ -48,7 +50,7 @@ CONFIG_FILE = "config.json"
 
 LANGUAGES = {
     "Português": {
-        "title": "Universal Media Downloader",
+        "title": "Paroni Downloader",
         "youtube": "Baixador do YouTube",
         "spotify": "Baixador do Spotify",
         "tiktok": "Baixador do TikTok",
@@ -109,7 +111,7 @@ LANGUAGES = {
         "delete": "Excluir"
     },
     "English": {
-        "title": "Universal Media Downloader",
+        "title": "Paroni Downloader",
         "youtube": "YouTube Downloader",
         "spotify": "Spotify Downloader",
         "tiktok": "TikTok Downloader",
@@ -170,7 +172,7 @@ LANGUAGES = {
         "delete": "Delete"
     },
     "Español": {
-        "title": "Universal Media Downloader",
+        "title": "Paroni Downloader",
         "youtube": "Descargador de YouTube",
         "spotify": "Descargador de Spotify",
         "tiktok": "Descargador de TikTok",
@@ -230,7 +232,7 @@ LANGUAGES = {
         "delete": "Eliminar"
     },
     "Русский": {
-        "title": "Universal Media Downloader",
+        "title": "Paroni Downloader",
         "youtube": "Загрузчик YouTube",
         "spotify": "Загрузчик Spotify",
         "tiktok": "Загрузчик TikTok",
@@ -290,7 +292,7 @@ LANGUAGES = {
         "delete": "Удалить"
     },
     "日本語": {
-        "title": "Universal Media Downloader",
+        "title": "Paroni Downloader",
         "youtube": "YouTube ダウンローダー",
         "spotify": "Spotify ダウンローダー",
         "tiktok": "TikTok ダウンローダー",
@@ -351,7 +353,7 @@ LANGUAGES = {
         "delete": "削除"
     },
     "中文": {
-        "title": "Universal Media Downloader",
+        "title": "Paroni Downloader",
         "youtube": "YouTube 下载器",
         "spotify": "Spotify 下载器",
         "tiktok": "TikTok 下载器",
@@ -1161,6 +1163,10 @@ class UniversalDownloaderApp(ctk.CTk):
         self.load_config()
 
         self.geometry("850x640")
+        try:
+            self.iconbitmap(os.path.join(os.path.dirname(__file__), "favIcon.ico"))
+        except Exception:
+            pass
         is_resizable = self.config.get("resizable_window", False)
         self.resizable(is_resizable, is_resizable)
 
@@ -1176,9 +1182,9 @@ class UniversalDownloaderApp(ctk.CTk):
         try:
             logo_img_data = Image.open(os.path.join(os.path.dirname(__file__), "favIcon.ico")).resize((48, 48), Image.Resampling.LANCZOS)
             self.logo_image = ctk.CTkImage(light_image=logo_img_data, dark_image=logo_img_data, size=(48, 48))
-            self.logo_label = ctk.CTkLabel(self.sidebar_frame, text="Universal Media\nDownloader", image=self.logo_image, compound="top", font=ctk.CTkFont(size=16, weight="bold"), text_color=TEXT_COLOR, justify="center")
+            self.logo_label = ctk.CTkLabel(self.sidebar_frame, text="Paroni\nDownloader", image=self.logo_image, compound="top", font=ctk.CTkFont(size=16, weight="bold"), text_color=TEXT_COLOR, justify="center")
         except Exception:
-            self.logo_label = ctk.CTkLabel(self.sidebar_frame, text="Universal Media\nDownloader", font=ctk.CTkFont(size=18, weight="bold"), text_color=TEXT_COLOR, justify="center")
+            self.logo_label = ctk.CTkLabel(self.sidebar_frame, text="Paroni\nDownloader", font=ctk.CTkFont(size=18, weight="bold"), text_color=TEXT_COLOR, justify="center")
             
         self.logo_label.grid(row=0, column=0, padx=10, pady=(20, 20))
 
@@ -1303,7 +1309,7 @@ class UniversalDownloaderApp(ctk.CTk):
     def apply_translations(self, lang):
         t = LANGUAGES.get(lang, LANGUAGES["Português"])
         # Title of main window
-        self.title("Universal Media Downloader")
+        self.title("Paroni Downloader")
         
         # Apply labels text logic (with emoji prefix maintained)
 
@@ -1315,7 +1321,7 @@ class UniversalDownloaderApp(ctk.CTk):
         self.btn_history.configure(text="🕒 " + t.get("history", "Histórico"))
         self.btn_settings.configure(text="⚙ " + t["settings"])
         
-        self.version_label.configure(text=f"{t['version']}: 1.4.5")
+        self.version_label.configure(text=f"{t['version']}: 1.4.6")
         
         for frame in [self.youtube_frame, self.spotify_frame, self.tiktok_frame, self.instagram_frame, self.others_frame,
                       self.twitter_frame, self.reddit_frame, self.pinterest_frame, self.facebook_frame, self.kwai_frame, 
@@ -1463,5 +1469,6 @@ class UniversalDownloaderApp(ctk.CTk):
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     app = UniversalDownloaderApp()
     app.mainloop()
