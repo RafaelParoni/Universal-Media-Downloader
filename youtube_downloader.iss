@@ -1,6 +1,6 @@
 [Setup]
 AppName=Paroni Downloader
-AppVersion=1.4.6
+AppVersion=1.5
 DefaultDirName={autopf}\Paroni Downloader
 DefaultGroupName=Paroni Downloader
 OutputDir=dist

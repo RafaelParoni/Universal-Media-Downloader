@@ -1,6 +1,13 @@
 {
     "download_folder": "D:/Download",
     "language": "Portugu\u00eas",
+    "theme": "system",
+    "shortcuts": [
+        "youtube",
+        "spotify",
+        "tiktok",
+        "instagram"
+    ],
     "history": [
         {
             "name": "\u84ddV\u8fc7\u5e74\u4e32\u95e8\u96c6\u4f53\u56e2\u5efa\ud83e\udd79\u73b0\u573a\u4e00\u7247\u7965\u548c",
@@ -101,5 +108,5 @@
             "path": "C:/Users/rafae/Downloads\\David Guetta - Titanium ft. Sia (Official Video) - audio.mp4"
         }
     ],
-    "resizable_window": false
+    "resizable_window": true
 }

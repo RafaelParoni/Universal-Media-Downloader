@@ -33,14 +33,86 @@ try:
 except:
     ICONS_B64 = {}
 
-# Paleta de Cores (Mockup)
-BG_COLOR = "#0A0B10"           # Fundo muito escuro (Janela principal)
-SIDEBAR_COLOR = "#0F111A"      # Fundo da barra lateral
-CARD_COLOR = "#151720"         # Fundo dos "cards" arredondados centrais
-ACCENT_COLOR = "#1c5d91"       # Azul Base
-ACCENT_HOVER = "#0e3256"       # Azul Escuro (Hover)
-ENTRY_BG = "#222433"           # Fundo das caixas de texto
-TEXT_COLOR = "#FFFFFF"         # Texto claro
+try:
+    import pywinstyles
+except ImportError:
+    pywinstyles = None
+
+import ctypes
+
+# Paleta de Cores (Suporte a Modo Claro e Escuro)
+BG_COLOR = ("#e0e0e0", "#1c1c1c")       # Fundo principal (#e0e0e0 no modo claro, #1c1c1c no modo escuro)
+SIDEBAR_COLOR = "transparent"  # Fundo da barra lateral transparente
+CARD_COLOR = ("#f4f4f4", "#242424")     # Fundo dos "cards" arredondados
+ENTRY_BG = ("#ffffff", "#2d2d2d")       # Fundo das caixas de texto
+ACCENT_COLOR = "#004AAD"               # Azul Primário
+ACCENT_CYAN = "#5DE0E6"                # Ciano Destaque
+ACCENT_HOVER = "#003580"               # Azul Escuro Hover
+BORDER_COLOR = ("#004AAD", "#5DE0E6")   # Cor da borda
+TEXT_COLOR = ("#111111", "#FFFFFF")     # Texto escuro no modo claro, claro no modo escuro
+
+def create_gradient_image(width, height, start_hex="#5DE0E6", end_hex="#004AAD"):
+    """Cria uma imagem de gradiente linear horizontal 90deg de start_hex até end_hex."""
+    try:
+        w = max(1, int(width))
+        h = max(1, int(height))
+        
+        def hex_to_rgb(hex_str):
+            hex_str = hex_str.lstrip('#')
+            return tuple(int(hex_str[i:i+2], 16) for i in (0, 2, 4))
+        
+        r1, g1, b1 = hex_to_rgb(start_hex)
+        r2, g2, b2 = hex_to_rgb(end_hex)
+        
+        img = Image.new("RGB", (w, 1))
+        pixels = []
+        for x in range(w):
+            t = x / max(1, w - 1)
+            r = int(r1 + (r2 - r1) * t)
+            g = int(g1 + (g2 - g1) * t)
+            b = int(b1 + (b2 - b1) * t)
+            pixels.append((r, g, b))
+        img.putdata(pixels)
+        return img.resize((w, h), Image.Resampling.NEAREST)
+    except Exception:
+        return Image.new("RGB", (max(1, int(width)), max(1, int(height))), "#004AAD")
+
+def apply_windows_blur(window):
+    """Aplica o efeito Acrylic / Blur da DWM do Windows na janela principal."""
+    if os.name != 'nt':
+        return
+    try:
+        hwnd = ctypes.windll.user32.GetParent(window.winfo_id())
+        if not hwnd:
+            hwnd = window.winfo_id()
+
+        class ACCENT_POLICY(ctypes.Structure):
+            _fields_ = [
+                ("AccentState", ctypes.c_int),
+                ("AccentFlags", ctypes.c_int),
+                ("GradientColor", ctypes.c_int),
+                ("AnimationId", ctypes.c_int)
+            ]
+
+        class WINDOWCOMPOSITIONATTRIB_DATA(ctypes.Structure):
+            _fields_ = [
+                ("Attribute", ctypes.c_int),
+                ("Data", ctypes.POINTER(ACCENT_POLICY)),
+                ("SizeOfData", ctypes.c_size_t)
+            ]
+
+        accent = ACCENT_POLICY()
+        accent.AccentState = 4  # ACCENT_ENABLE_ACRYLICBLURBEHIND
+        accent.GradientColor = 0xAA004AAD  # Alpha + ABGR color tint
+
+        data = WINDOWCOMPOSITIONATTRIB_DATA()
+        data.Attribute = 19  # WCA_ACCENT_POLICY
+        data.Data = ctypes.pointer(accent)
+        data.SizeOfData = ctypes.sizeof(accent)
+
+        ctypes.windll.user32.SetWindowCompositionAttribute(hwnd, ctypes.byref(data))
+    except Exception:
+        pass
 
 # Configuração Base
 ctk.set_appearance_mode("dark")
@@ -423,7 +495,7 @@ class OthersFrame(ctk.CTkScrollableFrame):
         self.app_ref = app_ref
 
         # Card Central
-        self.card = ctk.CTkFrame(self, fg_color=CARD_COLOR, corner_radius=25)
+        self.card = ctk.CTkFrame(self, fg_color="transparent")
         self.card.grid(row=0, column=0, padx=40, pady=40, sticky="nsew")
 
         fonte_titulo = ctk.CTkFont(size=24, weight="bold")
@@ -484,14 +556,17 @@ class OthersFrame(ctk.CTkScrollableFrame):
             ind_frame = ctk.CTkFrame(srv_card, fg_color="transparent", cursor="hand2")
             ind_frame.grid(row=2, column=0, pady=(0, 15))
             
-            vid_color = ACCENT_COLOR if has_video else "#333333"
-            aud_color = ACCENT_COLOR if has_audio else "#333333"
-            
-            vid_lbl = ctk.CTkLabel(ind_frame, text="▶", font=ctk.CTkFont(size=16), text_color=vid_color, cursor="hand2")
-            vid_lbl.grid(row=0, column=0, padx=5)
-            
-            aud_lbl = ctk.CTkLabel(ind_frame, text="ılı", font=ctk.CTkFont(size=18, weight="bold"), text_color=aud_color, cursor="hand2")
-            aud_lbl.grid(row=0, column=1, padx=5)
+            if has_video and has_audio:
+                ind_text = "Vídeo e Áudio Suportado"
+            elif has_video:
+                ind_text = "Vídeo Suportado"
+            elif has_audio:
+                ind_text = "Apenas Áudio Suportado"
+            else:
+                ind_text = "Não Suportado"
+                
+            ind_lbl = ctk.CTkLabel(ind_frame, text=ind_text, font=ctk.CTkFont(size=11), text_color=("black", "white"), cursor="hand2")
+            ind_lbl.grid(row=0, column=0, padx=5)
 
             # --- Event Binding ---
             def on_enter(e, c=srv_card):
@@ -503,7 +578,7 @@ class OthersFrame(ctk.CTkScrollableFrame):
             def on_click(e, cmd=command):
                 cmd()
 
-            elements = [srv_card, icon_display, name_lbl, ind_frame, vid_lbl, aud_lbl]
+            elements = [srv_card, icon_display, name_lbl, ind_frame, ind_lbl]
             for elem in elements:
                 elem.bind("<Enter>", on_enter)
                 elem.bind("<Leave>", on_leave)
@@ -555,7 +630,7 @@ class HistoryFrame(ctk.CTkFrame):
         self.app_ref = app_ref
 
         # Card Central
-        self.card = ctk.CTkFrame(self, fg_color=CARD_COLOR, corner_radius=25)
+        self.card = ctk.CTkFrame(self, fg_color="transparent")
         self.card.grid(row=0, column=0, padx=40, pady=40, sticky="nsew")
         self.card.grid_columnconfigure(0, weight=1)
         self.card.grid_rowconfigure(1, weight=1)
@@ -599,7 +674,7 @@ class HistoryFrame(ctk.CTkFrame):
         
         self.no_history_label.grid_remove()
         
-        item_frame = ctk.CTkFrame(self.scroll_frame, fg_color=ENTRY_BG, corner_radius=15)
+        item_frame = ctk.CTkFrame(self.scroll_frame, fg_color=ENTRY_BG, corner_radius=15, border_color=BORDER_COLOR, border_width=1)
         item_frame.grid(row=len(self.history_items) + 1, column=0, pady=5, padx=5, sticky="ew")
         item_frame.grid_columnconfigure(0, weight=1)
         
@@ -668,7 +743,7 @@ class HistoryFrame(ctk.CTkFrame):
                     subprocess.Popen(['xdg-open', folder])
 
 
-class SettingsFrame(ctk.CTkFrame):
+class SettingsFrame(ctk.CTkScrollableFrame):
     def __init__(self, master, app_ref):
         # Atualização Visual
         super().__init__(master, corner_radius=0, fg_color=BG_COLOR)
@@ -677,7 +752,7 @@ class SettingsFrame(ctk.CTkFrame):
         self.app_ref = app_ref
 
         # Card Central
-        self.card = ctk.CTkFrame(self, fg_color=CARD_COLOR, corner_radius=25)
+        self.card = ctk.CTkFrame(self, fg_color="transparent")
         self.card.grid(row=0, column=0, padx=40, pady=40, sticky="nsew")
         self.card.grid_columnconfigure(0, weight=1)
 
@@ -714,6 +789,45 @@ class SettingsFrame(ctk.CTkFrame):
         )
         self.menu_lang.grid(row=4, column=0, pady=(0, 20))
 
+        # Shortcuts selection
+        self.lbl_shortcuts = ctk.CTkLabel(self.card, text="Atalhos da Barra Lateral:", font=self.fonte_texto, text_color=TEXT_COLOR)
+        self.lbl_shortcuts.grid(row=5, column=0, pady=(10, 5))
+        
+        self.shortcuts_frame = ctk.CTkFrame(self.card, fg_color="transparent")
+        self.shortcuts_frame.grid(row=6, column=0, pady=(0, 20))
+        
+        available_services = list(self.app_ref.SERVICES_INFO.keys())
+        current_shortcuts = self.app_ref.config.get("shortcuts", ["youtube", "spotify", "tiktok", "instagram"])
+        self.shortcut_vars = []
+        for i in range(4):
+            val = current_shortcuts[i] if i < len(current_shortcuts) else available_services[0]
+            var = ctk.StringVar(value=val)
+            self.shortcut_vars.append(var)
+            
+            menu = ctk.CTkOptionMenu(
+                self.shortcuts_frame, values=available_services, variable=var,
+                font=self.fonte_texto, fg_color=ENTRY_BG, button_color=ENTRY_BG, button_hover_color="#2A2C3F",
+                dropdown_fg_color=ENTRY_BG, dropdown_hover_color=ACCENT_HOVER, dropdown_text_color=TEXT_COLOR, text_color=TEXT_COLOR,
+                corner_radius=10, height=35, width=150
+            )
+            menu.grid(row=i//2, column=i%2, padx=10, pady=5)
+
+        # Theme selection
+        self.lbl_theme = ctk.CTkLabel(self.card, text="Tema do Aplicativo:", font=self.fonte_texto, text_color=TEXT_COLOR)
+        self.lbl_theme.grid(row=7, column=0, pady=(10, 5))
+
+        current_theme = self.app_ref.config.get("theme", "system")
+        theme_map = {"system": "Automático", "dark": "Escuro", "light": "Claro"}
+        self.theme_var = ctk.StringVar(value=theme_map.get(current_theme, "Automático"))
+        self.menu_theme = ctk.CTkOptionMenu(
+            self.card, values=["Automático", "Escuro", "Claro"], variable=self.theme_var, 
+            command=self.change_theme, font=self.fonte_texto,
+            fg_color=ENTRY_BG, button_color=ENTRY_BG, button_hover_color="#2A2C3F",
+            dropdown_fg_color=ENTRY_BG, dropdown_hover_color=ACCENT_HOVER, dropdown_text_color=TEXT_COLOR, text_color=TEXT_COLOR,
+            corner_radius=10, height=35
+        )
+        self.menu_theme.grid(row=8, column=0, pady=(0, 20))
+
         # Resizable Window Option
         self.resizable_window_var = ctk.BooleanVar(value=self.app_ref.config.get("resizable_window", False))
         self.switch_resize = ctk.CTkSwitch(
@@ -722,7 +836,7 @@ class SettingsFrame(ctk.CTkFrame):
             font=self.fonte_texto, text_color=TEXT_COLOR,
             progress_color=ACCENT_COLOR, button_color="#DDDDDD", button_hover_color="#FFFFFF"
         )
-        self.switch_resize.grid(row=5, column=0, pady=(0, 30))
+        self.switch_resize.grid(row=9, column=0, pady=(0, 30))
 
         # Save button
         self.btn_save = ctk.CTkButton(
@@ -730,10 +844,10 @@ class SettingsFrame(ctk.CTkFrame):
             command=self.save_settings, font=ctk.CTkFont(size=16, weight="bold"),
             fg_color=ACCENT_COLOR, hover_color=ACCENT_HOVER, corner_radius=20, height=45, width=220
         )
-        self.btn_save.grid(row=6, column=0, pady=(10, 10))
+        self.btn_save.grid(row=10, column=0, pady=(10, 10))
         
         self.status_label = ctk.CTkLabel(self.card, text="", font=ctk.CTkFont(size=13))
-        self.status_label.grid(row=7, column=0, pady=(0, 20))
+        self.status_label.grid(row=11, column=0, pady=(0, 20))
 
         self.translate_ui(self.lang_var.get())
 
@@ -746,12 +860,21 @@ class SettingsFrame(ctk.CTkFrame):
         self.translate_ui(new_lang)
         self.app_ref.apply_translations(new_lang)
 
+    def change_theme(self, new_theme_str):
+        reverse_map = {"Automático": "system", "Escuro": "dark", "Claro": "light"}
+        theme_val = reverse_map.get(new_theme_str, "system")
+        ctk.set_appearance_mode(theme_val)
+        self.app_ref.config["theme"] = theme_val
+        self.app_ref.save_config()
+
     def translate_ui(self, lang):
         t = LANGUAGES.get(lang, LANGUAGES["Português"])
         try:
             self.title_label.configure(text=t["settings"])
             self.btn_folder.configure(text=t["select_folder"])
             self.lbl_lang.configure(text=t["language_lbl"])
+            self.lbl_shortcuts.configure(text=t.get("shortcuts_lbl", "Atalhos da Barra Lateral:"))
+            self.lbl_theme.configure(text=t.get("theme_lbl", "Tema do Aplicativo:"))
             self.btn_save.configure(text=t["save_settings"])
             self.switch_resize.configure(text=t.get("resizable_window_lbl", "Allow Window Resizing"))
         except:
@@ -762,8 +885,14 @@ class SettingsFrame(ctk.CTkFrame):
         self.app_ref.config["language"] = self.lang_var.get()
         is_resizable = self.resizable_window_var.get()
         self.app_ref.config["resizable_window"] = is_resizable
+        
+        # Save shortcuts
+        new_shortcuts = [var.get() for var in self.shortcut_vars]
+        self.app_ref.config["shortcuts"] = new_shortcuts
+        
         self.app_ref.save_config()
         self.app_ref.resizable(is_resizable, is_resizable)
+        self.app_ref.update_sidebar_shortcuts()
         
         self.status_label.configure(text="Configurações Salvas!", text_color="#00FF00")
         
@@ -781,7 +910,7 @@ class DownloaderFrame(ctk.CTkFrame):
         self.audio_only = audio_only
 
         # Card Central
-        self.card = ctk.CTkFrame(self, fg_color=CARD_COLOR, corner_radius=25)
+        self.card = ctk.CTkFrame(self, fg_color="transparent")
         self.card.grid(row=0, column=0, padx=40, pady=40, sticky="nsew")
         self.card.grid_columnconfigure(0, weight=1)
 
@@ -797,7 +926,7 @@ class DownloaderFrame(ctk.CTkFrame):
             height=45,
             font=self.fonte_texto,
             fg_color=ENTRY_BG,
-            border_color=ACCENT_COLOR,
+            border_color=BORDER_COLOR,
             border_width=1,
             corner_radius=20,
             text_color=TEXT_COLOR
@@ -1161,6 +1290,10 @@ class UniversalDownloaderApp(ctk.CTk):
         super().__init__()
 
         self.load_config()
+        
+        # Carregar Tema (Padrão: system)
+        theme = self.config.get("theme", "system")
+        ctk.set_appearance_mode(theme)
 
         self.geometry("850x640")
         try:
@@ -1169,6 +1302,10 @@ class UniversalDownloaderApp(ctk.CTk):
             pass
         is_resizable = self.config.get("resizable_window", False)
         self.resizable(is_resizable, is_resizable)
+
+        # Efeito de Blur removido conforme solicitado
+        # Configuração do Fundo da Janela (#1c1c1c no modo escuro, #e0e0e0 no modo claro)
+        self.configure(fg_color=BG_COLOR)
 
         # Configurar Grid principal
         self.grid_rowconfigure(0, weight=1)
@@ -1188,11 +1325,29 @@ class UniversalDownloaderApp(ctk.CTk):
             
         self.logo_label.grid(row=0, column=0, padx=10, pady=(20, 20))
 
-        # Botões do Sidebar (Nomes + Emojis)
-        self.btn_youtube = self.create_sidebar_button("▷ YouTube", 1, self.show_youtube)
-        self.btn_spotify = self.create_sidebar_button("🎵 Spotify", 2, self.show_spotify)
-        self.btn_tiktok = self.create_sidebar_button("📱 TikTok", 3, self.show_tiktok)
-        self.btn_instagram = self.create_sidebar_button("📸 Instagram", 4, self.show_instagram)
+        self.SERVICES_INFO = {
+            "youtube": {"emoji": "▷", "key": "youtube"},
+            "spotify": {"emoji": "🎵", "key": "spotify"},
+            "tiktok": {"emoji": "📱", "key": "tiktok"},
+            "instagram": {"emoji": "📸", "key": "instagram"},
+            "twitter": {"emoji": "🐦", "key": "twitter"},
+            "reddit": {"emoji": "👽", "key": "reddit"},
+            "pinterest": {"emoji": "📌", "key": "pinterest"},
+            "facebook": {"emoji": "📘", "key": "facebook"},
+            "kwai": {"emoji": "🔥", "key": "kwai"},
+            "vimeo": {"emoji": "🎬", "key": "vimeo"},
+            "twitch": {"emoji": "🟪", "key": "twitch"},
+            "soundcloud": {"emoji": "☁️", "key": "soundcloud"},
+            "bandcamp": {"emoji": "🎸", "key": "bandcamp"},
+            "bilibili": {"emoji": "📺", "key": "bilibili"}
+        }
+
+        # Botões Dinâmicos da Sidebar
+        self.shortcut_buttons = []
+        for i in range(4):
+            btn = self.create_sidebar_button("", i + 1, lambda idx=i: self.show_shortcut(idx))
+            self.shortcut_buttons.append(btn)
+            
         self.btn_others = self.create_sidebar_button("🌐 Todos os Serviços", 5, self.show_others)
         
         # Divider and Settings
@@ -1202,7 +1357,7 @@ class UniversalDownloaderApp(ctk.CTk):
         self.btn_history = self.create_sidebar_button("🕒 Histórico", 7, self.show_history)
         self.btn_settings = self.create_sidebar_button("⚙ Configurações", 8, self.show_settings)
 
-        self.buttons = [self.btn_youtube, self.btn_spotify, self.btn_tiktok, self.btn_instagram, self.btn_others, self.btn_history, self.btn_settings]
+        self.buttons = self.shortcut_buttons + [self.btn_others, self.btn_history, self.btn_settings]
 
         # Version label (visible but subtle)
         self.version_label = ctk.CTkLabel(self.sidebar_frame, text="", font=ctk.CTkFont(size=11), text_color="#5A5C66")
@@ -1235,12 +1390,27 @@ class UniversalDownloaderApp(ctk.CTk):
             self.vimeo_frame, self.twitch_frame, self.soundcloud_frame, self.bandcamp_frame, 
             self.bilibili_frame, self.history_frame, self.settings_frame
         ]
+        
+        self.frames_dict = {
+            "youtube": self.youtube_frame, "spotify": self.spotify_frame,
+            "tiktok": self.tiktok_frame, "instagram": self.instagram_frame,
+            "twitter": self.twitter_frame, "reddit": self.reddit_frame,
+            "pinterest": self.pinterest_frame, "facebook": self.facebook_frame,
+            "kwai": self.kwai_frame, "vimeo": self.vimeo_frame,
+            "twitch": self.twitch_frame, "soundcloud": self.soundcloud_frame,
+            "bandcamp": self.bandcamp_frame, "bilibili": self.bilibili_frame
+        }
     
 
         self.apply_translations(self.config.get("language", "Português"))
+        self.update_sidebar_shortcuts()
 
-        # Selecionar YouTube por padrão
-        self.show_youtube()
+        # Selecionar primeiro atalho por padrão
+        if self.shortcut_buttons:
+            self.show_shortcut(0)
+        else:
+            self.show_others()
+            
         self.bind("<Configure>", self.check_menu_scroll)
 
     def check_menu_scroll(self, event):
@@ -1261,6 +1431,8 @@ class UniversalDownloaderApp(ctk.CTk):
         self.config = {
             "download_folder": default_folder,
             "language": "Português",
+            "theme": "system",
+            "shortcuts": ["youtube", "spotify", "tiktok", "instagram"],
             "history": []
         }
         
@@ -1312,16 +1484,12 @@ class UniversalDownloaderApp(ctk.CTk):
         self.title("Paroni Downloader")
         
         # Apply labels text logic (with emoji prefix maintained)
-
-        self.btn_youtube.configure(text="▷ " + t["youtube"].split(" ")[-1]) 
-        self.btn_spotify.configure(text="🎵 " + t["spotify"].split(" ")[-1])
-        self.btn_tiktok.configure(text="📱 " + t["tiktok"].split(" ")[-1])
-        self.btn_instagram.configure(text="📸 " + t["instagram"].split(" ")[-1])
+        self.update_sidebar_shortcuts()
         self.btn_others.configure(text="🌐 " + t.get("others", "Outros"))
         self.btn_history.configure(text="🕒 " + t.get("history", "Histórico"))
         self.btn_settings.configure(text="⚙ " + t["settings"])
         
-        self.version_label.configure(text=f"{t['version']}: 1.4.6")
+        self.version_label.configure(text=f"{t['version']}: 1.5")
         
         for frame in [self.youtube_frame, self.spotify_frame, self.tiktok_frame, self.instagram_frame, self.others_frame,
                       self.twitter_frame, self.reddit_frame, self.pinterest_frame, self.facebook_frame, self.kwai_frame, 
@@ -1330,6 +1498,31 @@ class UniversalDownloaderApp(ctk.CTk):
             frame.translate_ui(lang)
     
 
+    def update_sidebar_shortcuts(self):
+        lang = self.config.get("language", "Português")
+        t = LANGUAGES.get(lang, LANGUAGES["Português"])
+        shortcuts = self.config.get("shortcuts", ["youtube", "spotify", "tiktok", "instagram"])
+        
+        for i in range(4):
+            service_id = shortcuts[i] if i < len(shortcuts) else "others"
+            info = self.SERVICES_INFO.get(service_id, self.SERVICES_INFO.get("others", {"emoji": "", "key": "others"}))
+            
+            trans_text = t.get(info["key"], service_id.capitalize())
+            if " " in trans_text and "Baixador" in trans_text:
+                trans_text = trans_text.split(" ")[-1]
+                
+            self.shortcut_buttons[i].configure(text=f"{info['emoji']} {trans_text}")
+
+    def show_shortcut(self, idx):
+        shortcuts = self.config.get("shortcuts", ["youtube", "spotify", "tiktok", "instagram"])
+        service_id = shortcuts[idx] if idx < len(shortcuts) else "others"
+        
+        self.hide_all_frames()
+        self.select_sidebar_button(self.shortcut_buttons[idx])
+        
+        frame = self.frames_dict.get(service_id, self.others_frame)
+        frame.grid(row=0, column=1, sticky="nsew")
+
     def create_sidebar_button(self, text, row, command):
         btn = ctk.CTkButton(
             self.sidebar_frame, 
@@ -1337,7 +1530,8 @@ class UniversalDownloaderApp(ctk.CTk):
             command=command,
             fg_color="transparent", 
             text_color=TEXT_COLOR, 
-            hover_color=CARD_COLOR,
+            hover_color="#121b2d",
+            border_width=0,
             corner_radius=20,
             anchor="w",
             font=ctk.CTkFont(size=15, weight="normal"),
@@ -1349,34 +1543,37 @@ class UniversalDownloaderApp(ctk.CTk):
     def select_sidebar_button(self, btn_ref):
         # Deselect all
         for btn in self.buttons:
-            btn.configure(fg_color="transparent")
+            btn.configure(fg_color="transparent", border_width=0)
         # Select active
-        btn_ref.configure(fg_color=ACCENT_COLOR)
+        btn_ref.configure(fg_color=ACCENT_COLOR, border_width=0)
 
     def hide_all_frames(self):
         for frame in self.frames:
             frame.grid_forget()
 
-    def show_youtube(self):
+    def show_service(self, service_id):
         self.hide_all_frames()
-        self.select_sidebar_button(self.btn_youtube)
-        self.youtube_frame.grid(row=0, column=1, sticky="nsew")
+        shortcuts = self.config.get("shortcuts", ["youtube", "spotify", "tiktok", "instagram"])
+        if service_id in shortcuts:
+            idx = shortcuts.index(service_id)
+            self.select_sidebar_button(self.shortcut_buttons[idx])
+        else:
+            self.select_sidebar_button(self.btn_others)
+        
+        frame = self.frames_dict.get(service_id, self.others_frame)
+        frame.grid(row=0, column=1, sticky="nsew")
+
+    def show_youtube(self):
+        self.show_service("youtube")
 
     def show_spotify(self):
-        self.hide_all_frames()
-        self.select_sidebar_button(self.btn_spotify)
-        self.spotify_frame.grid(row=0, column=1, sticky="nsew")
+        self.show_service("spotify")
 
     def show_tiktok(self):
-        self.hide_all_frames()
-        self.select_sidebar_button(self.btn_tiktok)
-        self.tiktok_frame.grid(row=0, column=1, sticky="nsew")
-
+        self.show_service("tiktok")
 
     def show_instagram(self):
-        self.hide_all_frames()
-        self.select_sidebar_button(self.btn_instagram)
-        self.instagram_frame.grid(row=0, column=1, sticky="nsew")
+        self.show_service("instagram")
 
     def show_others(self):
         self.hide_all_frames()
