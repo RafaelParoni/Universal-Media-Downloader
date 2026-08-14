@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paroni Downloader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="favIcon.ico">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo-icon">
+                    <img src="favIcon.ico" width="32" height="32" alt="Logo" style="object-fit: contain;">
+                </div>
+                <div class="brand-text">
+                    <h2>Paroni</h2>
+                    <span>Downloader</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-section-title" id="lbl-shortcuts">Atalhos</div>
+                <div id="sidebar-shortcuts">
+                    <!-- Dynamic shortcuts injected via JS -->
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <button class="nav-btn" data-view="others" id="btn-others">
+                    <span class="nav-icon">🌐</span>
+                    <span class="nav-text" id="txt-others">Todos os Serviços</span>
+                </button>
+
+                <button class="nav-btn" data-view="history" id="btn-history">
+                    <span class="nav-icon">🕒</span>
+                    <span class="nav-text" id="txt-history">Histórico</span>
+                </button>
+
+                <button class="nav-btn" data-view="settings" id="btn-settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text" id="txt-settings">Configurações</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="author-credits">
+                    <span class="author-label">By <strong>Rafael Paroni</strong></span>
+                    <div class="social-links">
+                        <a href="https://github.com/RafaelParoni/Paroni-Downloader" target="_blank" rel="noopener noreferrer" class="social-btn github-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                            </svg>
+                            <span>GitHub</span>
+                        </a>
+                        <a href="https://rafaelparoni.vercel.app/" target="_blank" rel="noopener noreferrer" class="social-btn website-btn">
+                            <img src="favIcon.ico" width="14" height="14" alt="Site" class="site-favicon-icon">
+                            <span>Site</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-meta">
+                    <span class="version-tag">v2.5 Web</span>
+                    <span class="server-badge" id="server-status-badge" title="Servidor rodando em 0.0.0.0:3000">Online :3000</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Downloader View (Default view) -->
+            <section id="view-downloader" class="view-panel active">
+                <div class="glass-card main-card">
+                    <div class="card-header">
+                        <div class="service-badge" id="current-service-icon">▷</div>
+                        <h1 id="downloader-title">Baixador do YouTube</h1>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text" id="url-input" class="modern-input" placeholder="Cole o link aqui..." autocomplete="off">
+                        <button id="paste-btn" class="icon-action-btn" title="Colar Área de Transferência">📋</button>
+                    </div>
+
+                    <div class="options-row">
+                        <div class="custom-select-wrapper">
+                            <label id="lbl-format-type">Formato</label>
+                            <select id="format-select" class="modern-select">
+                                <option value="video_audio" id="opt-video-audio">Vídeo + Áudio</option>
+                                <option value="audio_only" id="opt-audio-only">Apenas Áudio</option>
+                                <option value="video_only" id="opt-video-only">Apenas Vídeo</option>
+                            </select>
+                        </div>
+
+                        <div class="custom-select-wrapper">
+                            <label id="lbl-quality-type">Qualidade</label>
+                            <select id="quality-select" class="modern-select">
+                                <option value="best_quality" id="opt-best-quality">Melhor Qualidade</option>
+                                <option value="1080p">1080p</option>
+                                <option value="720p">720p</option>
+                                <option value="480p">480p</option>
+                                <option value="360p">360p</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button id="download-btn" class="primary-gradient-btn">
+                        <span class="btn-glow"></span>
+                        <span id="txt-btn-download">Baixar</span>
+                    </button>
+
+                    <!-- Progress Container -->
+                    <div id="progress-container" class="progress-box hidden">
+                        <div class="progress-info">
+                            <span id="status-text">Iniciando download...</span>
+                            <span id="progress-percent">0%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div id="progress-fill" class="progress-fill"></div>
+                        </div>
+                    </div>
+
+                    <!-- Result Box -->
+                    <div id="result-box" class="result-box hidden">
+                        <div class="result-icon">✅</div>
+                        <div class="result-info">
+                            <div id="result-title" class="result-title">Nome da Mídia</div>
+                            <div id="result-path" class="result-path">C:\Users\...</div>
+                        </div>
+                        <div class="result-actions">
+                            <a id="browser-download-btn" href="#" target="_blank" class="secondary-btn">
+                                📥 Baixar no Navegador
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- All Services View -->
+            <section id="view-others" class="view-panel">
+                <div class="glass-card wide-card">
+                    <h1 class="page-title" id="txt-title-others">Todos os Serviços Suportados</h1>
+                    <p class="page-subtitle">Selecione uma plataforma para baixar ou cole o link diretamente no baixador universal.</p>
+                    
+                    <div class="services-grid" id="services-grid">
+                        <!-- Services injected dynamically via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- History View -->
+            <section id="view-history" class="view-panel">
+                <div class="glass-card wide-card">
+                    <div class="section-header">
+                        <h1 class="page-title" id="txt-title-history">Histórico de Downloads</h1>
+                        <button id="clear-all-history-btn" class="danger-btn">Limpar Tudo</button>
+                    </div>
+                    
+                    <div id="history-list" class="history-list">
+                        <!-- History injected dynamically -->
+                    </div>
+
+                    <div id="empty-history" class="empty-state">
+                        <span class="empty-icon">📭</span>
+                        <span id="txt-empty-history">Nenhum histórico disponível.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings View -->
+            <section id="view-settings" class="view-panel">
+                <div class="glass-card main-card">
+                    <h1 class="page-title" id="txt-title-settings">Configurações</h1>
+                    
+                    <div class="settings-form">
+                        <div class="setting-item">
+                            <label class="setting-label" id="txt-lbl-download-folder">Processamento de Downloads</label>
+                            <div class="server-temp-notice">
+                                🔒 <strong>Modo Navegador Ativo:</strong> Os downloads são processados temporariamente no servidor (`temp_downloads/`), enviados automaticamente para o seu navegador e <strong>excluídos permanentemente do servidor após 5 minutos</strong>.
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <label class="setting-label" id="txt-lbl-app-lang">Idioma da Interface</label>
+                            <select id="language-select" class="modern-select">
+                                <option value="Português">Português</option>
+                                <option value="English">English</option>
+                                <option value="Español">Español</option>
+                                <option value="Русский">Русский</option>
+                                <option value="日本語">日本語</option>
+                                <option value="中文">中文</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-item">
+                            <label class="setting-label" id="txt-lbl-shortcuts-config">Atalhos da Barra Lateral</label>
+                            <div class="shortcuts-config-grid">
+                                <select id="shortcut-0" class="modern-select shortcut-picker"></select>
+                                <select id="shortcut-1" class="modern-select shortcut-picker"></select>
+                                <select id="shortcut-2" class="modern-select shortcut-picker"></select>
+                                <select id="shortcut-3" class="modern-select shortcut-picker"></select>
+                            </div>
+                        </div>
+
+                        <button id="save-settings-btn" class="primary-gradient-btn">
+                            <span id="txt-btn-save-settings">Salvar Configurações</span>
+                        </button>
+                        
+                        <div id="settings-status" class="toast-status"></div>
+
+                        <!-- Divider -->
+                        <div class="nav-divider" style="margin: 24px 0;"></div>
+
+                        <!-- Master Server Settings Section -->
+                        <div class="master-settings-section">
+                            <div class="section-header-row">
+                                <h2 class="section-subtitle">🛡️ Configuração Mestre do Servidor</h2>
+                                <span id="master-lock-status" class="lock-badge locked">🔒 Bloqueado</span>
+                            </div>
+
+                            <!-- Form for PIN Login / Lock -->
+                            <div id="master-login-box" class="master-box">
+                                <p class="setting-hint" id="master-pin-hint">Insira o PIN Mestre para desbloquear os controles avançados do servidor (Porta, Modo IP e Servidor).</p>
+                                <div class="input-group" style="margin-top: 12px; gap: 8px;">
+                                    <input type="password" id="master-pin-input" class="modern-input" placeholder="Digite o PIN Mestre..." maxlength="12">
+                                    <button id="unlock-master-btn" class="secondary-btn" style="height: 48px; white-space: nowrap;">Desbloquear</button>
+                                </div>
+                                <div id="master-login-error" class="toast-status error-toast" style="color: #f87171; margin-top: 8px;"></div>
+                            </div>
+
+                            <!-- Unlocked Master Controls (Hidden until PIN verified) -->
+                            <div id="master-controls-box" class="master-box hidden">
+                                <div class="setting-item">
+                                    <label class="setting-label">Porta do Servidor</label>
+                                    <input type="number" id="master-port-input" class="modern-input" placeholder="Ex: 3000 ou 6666">
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label">Modo de Acesso do Host (IP)</label>
+                                    <select id="master-bind-select" class="modern-select">
+                                        <option value="0.0.0.0">0.0.0.0 (Rede Local + IP + Localhost)</option>
+                                        <option value="127.0.0.1">127.0.0.1 (Apenas Localhost)</option>
+                                    </select>
+                                </div>
+
+                                <button id="save-master-config-btn" class="primary-gradient-btn" style="margin-top: 10px;">
+                                    <span>Salvar Configuração Mestre</span>
+                                </button>
+
+                                <div class="nav-divider" style="margin: 16px 0;"></div>
+
+                                <label class="setting-label">Controle do Servidor</label>
+                                <div class="server-actions-grid">
+                                    <button id="restart-server-btn" class="action-btn warning-action">🔄 Reiniciar Servidor</button>
+                                    <button id="stop-server-btn" class="action-btn danger-action">🛑 Desligar Servidor</button>
+                                    <button id="change-pin-btn" class="action-btn info-action">🔑 Alterar PIN Mestre</button>
+                                </div>
+
+                                <div id="master-status-msg" class="toast-status" style="margin-top: 12px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Mobile Footer / Credits (Visible only on mobile at the end of body) -->
+            <footer class="mobile-body-footer">
+                <div class="author-credits">
+                    <span class="author-label">By <strong>Rafael Paroni</strong></span>
+                    <div class="social-links">
+                        <a href="https://github.com/RafaelParoni/Paroni-Downloader" target="_blank" rel="noopener noreferrer" class="social-btn github-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                            </svg>
+                            <span>GitHub</span>
+                        </a>
+                        <a href="https://rafaelparoni.vercel.app/" target="_blank" rel="noopener noreferrer" class="social-btn website-btn">
+                            <img src="favIcon.ico" width="14" height="14" alt="Site" class="site-favicon-icon">
+                            <span>Site</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-meta" style="margin-top: 12px;">
+                    <span class="version-tag">v2.5 Web</span>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-bottom-nav">
+        <button class="mobile-nav-btn active" data-view="downloader" title="Downloader">
+            <span class="mobile-nav-icon">📥</span>
+        </button>
+        <button class="mobile-nav-btn" data-view="others" title="Todos os Serviços">
+            <span class="mobile-nav-icon">🌐</span>
+        </button>
+        <button class="mobile-nav-btn" data-view="history" title="Histórico">
+            <span class="mobile-nav-icon">🕒</span>
+        </button>
+        <button class="mobile-nav-btn" data-view="settings" title="Configurações">
+            <span class="mobile-nav-icon">⚙️</span>
+        </button>
+    </nav>
+
+    <script src="app.js"></script>
+</body>
+</html>

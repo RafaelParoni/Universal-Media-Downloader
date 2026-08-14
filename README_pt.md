@@ -1,78 +1,104 @@
-# Paroni Downloader
+# Paroni Downloader (v2.5 Web)
 
-![Versão](https://img.shields.io/badge/versão-1.2.3-blue.svg)
-![Plataforma](https://img.shields.io/badge/plataforma-Windows_10%2F11-lightgrey.svg)
+![Versão](https://img.shields.io/badge/versão-2.5_Web-blue.svg)
+![Plataforma](https://img.shields.io/badge/plataforma-Windows_%7C_Linux-lightgrey.svg)
 ![Licença](https://img.shields.io/badge/licença-MIT-green.svg)
 
-O **Paroni Downloader** é um aplicativo de desktop moderno, leve e fácil de usar, projetado para baixar vídeos e áudios das redes sociais e plataformas de streaming mais populares, tudo em um só lugar.
-
-## ✨ Recursos
-
-- **Suporte Multiplataforma**: Baixe facilmente de:
-  - ▷ **YouTube**: Vídeos em alta qualidade ou apenas o áudio.
-  - 🎵 **Spotify**: Faixas e músicas convertidas para formatos de áudio padrão (MP3).
-  - 📱 **TikTok**: Download direto de vídeos.
-  - 📸 **Instagram**: Reels, posts e vídeos.
-- **Qualidade Personalizável**: Escolha a resolução desejada (1080p, 720p, 480p, 360p) ou opte pela "Melhor Qualidade".
-- **Seleção de Formato**: 
-  - Vídeo + Áudio
-  - Somente Áudio
-  - Somente Vídeo
-- **Aba de Histórico**: Mantenha o controle de todos os seus downloads. Visualize os detalhes da mídia (Nome, Serviço, Duração, Link, Local), abra a pasta do arquivo baixado diretamente ou exclua itens do histórico.
-- **Suporte a Múltiplos Idiomas**: Totalmente traduzido para Português, Inglês, Espanhol, Russo, Japonês e Chinês.
-- **Interface de Usuário Moderna**: Desenvolvido com `customtkinter` para uma interface elegante, com tema escuro e responsiva.
-
-## 🚀 Instalação (Windows)
-
-Você pode baixar o instalador compilado (`Universal_Media_Downloader_Setup.exe`) na seção [Releases](https://github.com/RafaelParoni/Universal-Media-Downloader/releases).
-
-1. Baixe o `setup.exe` mais recente.
-2. Execute o instalador e siga as instruções na tela.
-3. Abra o **Paroni Downloader** pelo atalho na sua área de trabalho ou menu iniciar.
-
-## 🛠️ Desenvolvimento e Compilação do Código-Fonte
-
-Caso você queira rodar o aplicativo a partir do código-fonte ou compilar seu próprio executável:
-
-### Pré-requisitos
-
-Certifique-se de ter o Python 3.9+ instalado e o `pip` disponível no seu sistema. 
-Você também precisa do `ffmpeg` configurado (o script puxa automaticamente o `imageio-ffmpeg` para lidar com as conversões internamente).
-
-### Configuração
-
-1. **Clone o repositório:**
-   ```bash
-   git clone https://github.com/RafaelParoni/UniversalMediaDownloader.git
-   cd UniversalMediaDownloader
-   ```
-
-2. **Instale as dependências necessárias:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Os pacotes necessários geralmente incluem: `customtkinter`, `yt-dlp`, `imageio-ffmpeg`, etc.*
-
-3. **Execute o aplicativo:**
-   ```bash
-   python youtube_downloader.py
-   ```
-
-### Compilando o Executable
-
-Para compilar o aplicativo em um `.exe` autônomo para Windows usando o PyInstaller:
-
-```bash
-pyinstaller --noconfirm youtube_downloader.spec
-```
-
-Para criar um instalador amigável, utilize o **Inno Setup** e compile o script `youtube_downloader.iss` fornecido na pasta.
-
-## 📝 Licença
-
-Este projeto é licenciado sob a Licença MIT - veja o arquivo LICENSE para detalhes.
+O **Paroni Downloader** é uma aplicação web moderna, responsiva e de alta performance projetada para baixar vídeos e áudios das principais redes sociais e plataformas de streaming (YouTube, Spotify, TikTok, Instagram, Twitter, Reddit, Pinterest, Twitch, Kwai, Vimeo, SoundCloud, Bandcamp, BiliBili, Facebook).
 
 ---
-*Aviso: Esta ferramenta destina-se ao uso pessoal e ao download de conteúdo que você possui ou tem permissão para usar. Por favor, respeite as políticas de direitos autorais das respectivas plataformas.*
 
+## ✨ Recursos do Projeto
 
+- 🌐 **Servidor Web Headless (Porta 3000)**: Executa como servidor backend e permite acesso local (`http://localhost:3000`) ou em rede local via IP (`http://<IP_DA_REDE>:3000`).
+- 🔒 **Modo Navegador & Autolimpeza (5 Minutos)**: Os downloads são processados temporariamente na pasta `temp/`, entregues diretamente para o seu navegador e **excluídos permanentemente do servidor após 5 minutos**.
+- 🛡️ **Configuração MESTRE Protegida por PIN**: Painel administrativo protegido por senha PIN para alterar a porta do servidor, alternar modo de acesso (IP de rede vs Apenas Localhost) e controlar o processo do servidor (Reiniciar / Desligar).
+- 💻 **Histórico & Preferências Isolados por Dispositivo**: O histórico de downloads, idioma e atalhos da barra lateral são salvos individualmente no `localStorage` de cada computador/navegador.
+- 📱 **Interface 100% Responsiva & Mobile Navigation**: Layout adaptativo para Desktop e interface dedicada para Smartphones com atalhos no topo e barra de navegação inferior (Bottom Nav).
+
+---
+
+## 🚀 Como Executar pelo Código-Fonte
+
+### Pré-requisitos
+- Python 3.9 ou superior.
+- Dependências instaladas (`yt-dlp`, `imageio_ffmpeg`).
+
+### Passos:
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/RafaelParoni/Paroni-Downloader.git
+   cd Paroni-Downloader
+   ```
+2. Instale as dependências:
+   ```bash
+   py -m pip install -r requirements.txt
+   ```
+3. Inicie o servidor:
+   ```bash
+   py server.py
+   ```
+4. Acesse no navegador em `http://localhost:3000`.
+
+---
+
+## 🪟 Instalação no Windows (PyInstaller + Inno Setup)
+
+Você pode compilar o projeto em um executável nativo do Windows e gerar um instalador de instalação rápida (`setup.exe`):
+
+1. **Compilar Executável (`.exe`) com PyInstaller:**
+   ```bash
+   py -m PyInstaller --noconfirm paroni_downloader.spec
+   ```
+   *O executável autônomo será gerado na pasta `dist/ParoniDownloaderServer.exe`.*
+
+2. **Gerar Instalador Windows (`Setup.exe`) com Inno Setup:**
+   - Abra o aplicativo **Inno Setup Compiler**.
+   - Abra o arquivo `installer_windows.iss`.
+   - Clique em **Compile** (ou dê `Ctrl + F9`).
+   - O instalador oficial `ParoniDownloader-Setup-v2.5.exe` será gerado na pasta `installer_output/`.
+
+---
+
+## 🐧 Instalação no Linux (Pacote .DEB & Script Auto-Installer)
+
+Oferecemos duas formas nativas para instalar no Linux:
+
+### Opção 1: Pacote de Instalação Gráfica `.DEB` (Ubuntu / Debian / Linux Mint / Pop!_OS)
+1. Gere o pacote `.deb`:
+   ```bash
+   chmod +x create_deb_package.sh
+   ./create_deb_package.sh
+   ```
+2. O arquivo **`paroni-downloader_2.5_all.deb`** será gerado.
+3. Para instalar, basta dar **2 cliques no arquivo `.deb`** para abrir a Central de Programas do Ubuntu/Debian e clicar em **Instalar**, ou rodar:
+   ```bash
+   sudo dpkg -i paroni-downloader_2.5_all.deb
+   ```
+
+### Opção 2: Script Auto-Installer de Terminal (Qualquer Distro Linux)
+1. Instalação com registro de serviço no `systemd` e atalho no menu:
+   ```bash
+   chmod +x install_linux.sh
+   sudo ./install_linux.sh
+   ```
+2. Para verificar o status do servidor no Linux:
+   ```bash
+   sudo systemctl status paroni-downloader
+   ```
+3. Para desinstalar do Linux:
+   ```bash
+   chmod +x uninstall_linux.sh
+   sudo ./uninstall_linux.sh
+   ```
+
+---
+
+## 👤 Autor e Links
+
+- **Autor**: Rafael Paroni
+- **GitHub**: [https://github.com/RafaelParoni/Paroni-Downloader](https://github.com/RafaelParoni/Paroni-Downloader)
+- **Site**: [https://rafaelparoni.vercel.app/](https://rafaelparoni.vercel.app/)
+
+---
+*Licença MIT - Uso pessoal e educacional.*
